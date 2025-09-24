@@ -156,7 +156,7 @@ class OpenRouterProvider {
  * Get the appropriate LLM provider
  */
 const getLLMProvider = (providerName) => {
-  const provider = providerName || process.env.DEFAULT_LLM_PROVIDER || 'anthropic';
+  const provider = providerName || process.env.DEFAULT_LLM_PROVIDER || 'openrouter';
   
   switch (provider.toLowerCase()) {
     case 'anthropic':
@@ -171,14 +171,17 @@ const getLLMProvider = (providerName) => {
       }
       return new OpenAIProvider();
     
-    case 'google':
-      if (!process.env.GOOGLE_API_KEY) {
-        throw new Error('GOOGLE_API_KEY environment variable is required');
+    case 'openrouter':
+      if (!process.env.OPENROUTER_API_KEY) {
+        throw new Error('OPENROUTER_API_KEY environment variable is required');
       }
-      return new GoogleProvider();
+      return new OpenRouterProvider();
+    
+    case 'google':
+      throw new Error('Google Gemini provider is temporarily disabled. Use anthropic, openai, or openrouter instead.');
     
     default:
-      throw new Error(`Unsupported LLM provider: ${provider}. Supported providers: anthropic, openai, google`);
+      throw new Error(`Unsupported LLM provider: ${provider}. Supported providers: anthropic, openai, openrouter`);
   }
 };
 
@@ -187,5 +190,5 @@ module.exports = {
   LLMError,
   AnthropicProvider,
   OpenAIProvider,
-  GoogleProvider
+  OpenRouterProvider
 };
