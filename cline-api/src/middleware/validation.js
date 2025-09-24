@@ -18,8 +18,8 @@ const validationRules = {
       errors.push('options must be an object');
     }
     
-    if (body.options?.provider && !['anthropic', 'openai', 'google'].includes(body.options.provider)) {
-      errors.push('provider must be one of: anthropic, openai, google');
+    if (body.options?.provider && !['anthropic', 'openai', 'openrouter'].includes(body.options.provider)) {
+      errors.push('provider must be one of: anthropic, openai, openrouter');
     }
     
     return errors;
