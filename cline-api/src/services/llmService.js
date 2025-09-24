@@ -1,6 +1,6 @@
 const { Anthropic } = require('@anthropic-ai/sdk');
 const { OpenAI } = require('openai');
-const { GoogleGenerativeAI } = require('@google/genai');
+// const { GoogleGenerativeAI } = require('@google/genai');
 
 class LLMError extends Error {
   constructor(message, provider) {
