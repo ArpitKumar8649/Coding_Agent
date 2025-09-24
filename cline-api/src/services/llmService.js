@@ -100,21 +100,55 @@ class OpenAIProvider {
 }
 
 /**
- * Google (Gemini) Provider
+ * OpenRouter Provider (supports multiple models including xAI Grok)
  */
-class GoogleProvider {
+class OpenRouterProvider {
   constructor() {
-    this.name = 'google';
-    // this.client = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
-    throw new Error('Google Gemini provider is temporarily disabled. Use anthropic or openai instead.');
+    this.name = 'openrouter';
+    this.apiKey = process.env.OPENROUTER_API_KEY;
+    this.baseUrl = 'https://openrouter.ai/api/v1';
   }
 
   async generateCode(prompt, options = {}) {
-    throw new Error('Google Gemini provider is temporarily disabled');
+    try {
+      const model = options.model || 'x-ai/grok-beta'; // Default to free xAI Grok model
+      
+      const response = await axios.post(`${this.baseUrl}/chat/completions`, {
+        model: model,
+        messages: [
+          {
+            role: 'system',
+            content: 'You are an expert software developer. Generate clean, well-structured code based on requirements.'
+          },
+          {
+            role: 'user',
+            content: prompt
+          }
+        ],
+        max_tokens: options.maxTokens || 4000,
+        temperature: options.temperature || 0.1,
+      }, {
+        headers: {
+          'Authorization': `Bearer ${this.apiKey}`,
+          'Content-Type': 'application/json',
+          'HTTP-Referer': process.env.HTTP_REFERER || 'http://localhost:3000',
+          'X-Title': 'Cline API Service'
+        }
+      });
+
+      return {
+        content: response.data.choices[0].message.content,
+        model: model,
+        tokensUsed: response.data.usage?.total_tokens || 0
+      };
+    } catch (error) {
+      const errorMessage = error.response?.data?.error?.message || error.message;
+      throw new LLMError(`OpenRouter API Error: ${errorMessage}`, 'openrouter');
+    }
   }
 
   async editCode(prompt, options = {}) {
-    throw new Error('Google Gemini provider is temporarily disabled');
+    return this.generateCode(prompt, options);
   }
 }
 
