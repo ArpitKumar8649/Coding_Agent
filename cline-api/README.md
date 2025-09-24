@@ -7,7 +7,7 @@ A REST API service based on Cline's core functionality for AI-powered code gener
 - **Code Generation**: Generate complete files from natural language requirements
 - **Code Editing**: Edit existing code with AI-powered instructions
 - **Diff Generation**: Create and analyze differences between code versions
-- **Multi-LLM Support**: Works with Anthropic Claude, OpenAI GPT, and Google Gemini
+- **Multi-LLM Support**: Works with OpenRouter (multiple models), Anthropic Claude, OpenAI GPT
 - **RESTful API**: Clean JSON responses with structured logging
 - **Docker Ready**: Containerized for easy deployment
 - **Rate Limiting**: Built-in protection against abuse
