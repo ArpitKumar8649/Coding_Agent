@@ -223,14 +223,21 @@ NODE_ENV=production
 # API Authentication
 API_KEY=your-secure-api-key-here
 
-# LLM Provider Configuration (at least one required)
-ANTHROPIC_API_KEY=sk-ant-...
-OPENAI_API_KEY=sk-...
-GOOGLE_API_KEY=AI...
+# LLM Provider Configuration (choose one or multiple)
+# OpenRouter (supports 100+ models including free ones)
+OPENROUTER_API_KEY=sk-or-v1-...
 
-# Default Settings
-DEFAULT_LLM_PROVIDER=anthropic
-DEFAULT_MODEL=claude-3-5-sonnet-20241022
+# Anthropic (Claude)
+ANTHROPIC_API_KEY=sk-ant-...
+
+# OpenAI (GPT)
+OPENAI_API_KEY=sk-...
+
+# Default LLM Provider (openrouter, anthropic, openai)
+DEFAULT_LLM_PROVIDER=openrouter
+
+# Default Model (for OpenRouter: meta-llama/llama-3.2-3b-instruct:free, x-ai/grok-beta, etc.)
+DEFAULT_MODEL=meta-llama/llama-3.2-3b-instruct:free
 
 # Rate Limiting
 RATE_LIMIT_WINDOW=15  # minutes
