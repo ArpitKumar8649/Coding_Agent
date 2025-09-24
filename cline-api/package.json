@@ -1,0 +1,34 @@
+{
+  "name": "cline-api",
+  "version": "1.0.0",
+  "description": "REST API service based on Cline's core functionality for code generation and editing",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "build": "echo 'No build step required'",
+    "test": "node test/test-api.js"
+  },
+  "keywords": ["cline", "api", "code-generation", "ai", "llm"],
+  "author": "Cline API Service",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.0.0",
+    "dotenv": "^16.3.1",
+    "@anthropic-ai/sdk": "^0.37.0",
+    "openai": "^4.83.0",
+    "@google/genai": "1.0.0",
+    "axios": "^1.8.2",
+    "diff": "^5.2.0",
+    "uuid": "^9.0.0",
+    "body-parser": "^1.20.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
