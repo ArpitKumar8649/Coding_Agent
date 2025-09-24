@@ -2,7 +2,11 @@ version: '3.8'
 
 services:
   cline-api:
-    build: .
+    build: 
+      context: .
+      dockerfile: Dockerfile
+      # Enable BuildKit for faster builds
+      target: production
     ports:
       - "3000:3000"
     environment:
@@ -18,15 +22,24 @@ services:
       - RATE_LIMIT_MAX=${RATE_LIMIT_MAX:-100}
       - LOG_LEVEL=${LOG_LEVEL:-info}
     volumes:
-      - .:/app
-      - /app/node_modules
+      # Only mount source code, not node_modules for better performance
+      - ./src:/app/src:ro
+      - ./package.json:/app/package.json:ro
+      - ./yarn.lock:/app/yarn.lock:ro
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "node", "healthcheck.js"]
+      test: ["CMD", "yarn", "node", "healthcheck.js"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 40s
+      start_period: 15s
+    # Resource limits to prevent issues
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
 
   # Optional: Redis for better rate limiting (uncomment if needed)
   # redis:
