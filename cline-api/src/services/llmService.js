@@ -1,5 +1,6 @@
 const { Anthropic } = require('@anthropic-ai/sdk');
 const { OpenAI } = require('openai');
+const axios = require('axios');
 // const { GoogleGenerativeAI } = require('@google/genai'); // Removed for compatibility
 
 class LLMError extends Error {
