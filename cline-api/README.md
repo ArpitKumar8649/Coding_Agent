@@ -249,6 +249,13 @@ LOG_LEVEL=info
 
 ### LLM Provider Setup
 
+#### OpenRouter (Recommended - Access to 100+ Models)
+1. Get API key from [OpenRouter](https://openrouter.ai/keys)
+2. Set `OPENROUTER_API_KEY` in your `.env`
+3. Available models: 
+   - **Free**: `meta-llama/llama-3.2-3b-instruct:free`, `microsoft/phi-3-mini-128k-instruct:free`
+   - **Paid**: `anthropic/claude-3.5-sonnet`, `openai/gpt-4`, `x-ai/grok-beta`, etc.
+
 #### Anthropic Claude
 1. Get API key from [Anthropic Console](https://console.anthropic.com/)
 2. Set `ANTHROPIC_API_KEY` in your `.env`
@@ -258,11 +265,6 @@ LOG_LEVEL=info
 1. Get API key from [OpenAI Platform](https://platform.openai.com/)
 2. Set `OPENAI_API_KEY` in your `.env`
 3. Available models: `gpt-4`, `gpt-3.5-turbo`
-
-#### Google Gemini
-1. Get API key from [Google AI Studio](https://makersuite.google.com/)
-2. Set `GOOGLE_API_KEY` in your `.env`
-3. Available models: `gemini-pro`, `gemini-pro-vision`
 
 ## Deployment on Render
 
