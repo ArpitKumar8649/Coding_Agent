@@ -37,7 +37,7 @@ grep -q "docker:run" package.json && print_status 0 "docker:run script found" ||
 echo -e "\n${YELLOW}🐳 Validating Dockerfile structure...${NC}"
 grep -q "FROM.*alpine" Dockerfile && print_status 0 "Using Alpine base image" || print_status 1 "Not using Alpine base"
 grep -q "yarn install" Dockerfile && print_status 0 "Using yarn instead of npm" || print_status 1 "Still using npm"
-grep -q "multi-stage" Dockerfile && print_status 0 "Multi-stage build detected" || print_status 1 "Single stage build"
+grep -q "AS base\|AS deps\|AS production" Dockerfile && print_status 0 "Multi-stage build detected" || print_status 1 "Single stage build"
 grep -q "dumb-init" Dockerfile && print_status 0 "Using dumb-init for signals" || print_status 1 "No init system"
 
 # Test 4: Check health check configuration
