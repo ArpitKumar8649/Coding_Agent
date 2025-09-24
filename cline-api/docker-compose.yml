@@ -27,7 +27,7 @@ services:
       - ./yarn.lock:/app/yarn.lock:ro
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "yarn", "node", "healthcheck.js"]
+      test: ["CMD", "node", "healthcheck.js"]
       interval: 30s
       timeout: 10s
       retries: 3
