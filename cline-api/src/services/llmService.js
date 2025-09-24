@@ -104,29 +104,16 @@ class OpenAIProvider {
 class GoogleProvider {
   constructor() {
     this.name = 'google';
-    this.client = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
+    // this.client = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
+    throw new Error('Google Gemini provider is temporarily disabled. Use anthropic or openai instead.');
   }
 
   async generateCode(prompt, options = {}) {
-    try {
-      const model = options.model || 'gemini-pro';
-      const genModel = this.client.getGenerativeModel({ model: model });
-      
-      const result = await genModel.generateContent(prompt);
-      const response = await result.response;
-      
-      return {
-        content: response.text(),
-        model: model,
-        tokensUsed: 0 // Gemini doesn't provide token usage in the same way
-      };
-    } catch (error) {
-      throw new LLMError(`Google API Error: ${error.message}`, 'google');
-    }
+    throw new Error('Google Gemini provider is temporarily disabled');
   }
 
   async editCode(prompt, options = {}) {
-    return this.generateCode(prompt, options);
+    throw new Error('Google Gemini provider is temporarily disabled');
   }
 }
 
