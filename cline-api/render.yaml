@@ -7,6 +7,19 @@ services:
     region: oregon
     branch: main
     healthCheckPath: /health
+    # Optimize build settings
+    buildFilter:
+      paths:
+      - cline-api/**
+      ignoredPaths:
+      - README.md
+      - docs/**
+      - examples/**
+      - test/**
+    # Build configuration for better performance
+    buildCommand: echo "Using Dockerfile build"
+    dockerCommand: yarn start
+    # Environment variables
     envVars:
       - key: NODE_ENV
         value: production
@@ -24,6 +37,11 @@ services:
         value: 100
       - key: LOG_LEVEL
         value: info
+      # Yarn configuration for faster installs
+      - key: YARN_CACHE_FOLDER
+        value: /opt/render/.yarn
+      - key: NPM_CONFIG_PRODUCTION
+        value: true
       # Set these manually in Render dashboard for security
       - key: ANTHROPIC_API_KEY
         sync: false
