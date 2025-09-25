@@ -45,8 +45,48 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Initialize enhanced services
+console.log('🚀 Initializing enhanced services...');
+const streamingService = new StreamingService(server);
+const enhancedApiService = new EnhancedApiService(streamingService);
+
+// Make enhanced service available to routes
+app.set('enhancedApiService', enhancedApiService);
+
+// Handle streaming requests
+streamingService.on('stream_request', async ({ streamId, connectionId, type, request, callback }) => {
+  try {
+    console.log(`📡 Processing stream request: ${type} (${streamId})`);
+    
+    let result;
+    switch (type) {
+      case 'generate':
+        result = await enhancedApiService.generateCodeEnhanced({
+          ...request,
+          streamId
+        });
+        break;
+      case 'edit':
+        result = await enhancedApiService.editCodeEnhanced({
+          ...request,
+          streamId
+        });
+        break;
+      default:
+        throw new Error(`Unsupported stream type: ${type}`);
+    }
+    
+    streamingService.completeStream(streamId, result);
+    
+  } catch (error) {
+    console.error(`Stream processing error (${streamId}):`, error);
+    streamingService.errorStream(streamId, error);
+  }
+});
+
 // API routes
 app.use('/api', codeRoutes);
+app.use('/api/v2', enhancedRoutes);
 
 // Root endpoint
 app.get('/', (req, res) => {
