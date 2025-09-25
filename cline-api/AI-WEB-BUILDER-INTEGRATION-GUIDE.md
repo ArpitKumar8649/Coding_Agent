@@ -189,20 +189,105 @@ def create_edit_session(self, project_id: str, file_path: str, content: str) -> 
     return response.json()
 ```
 
-### 3. Generate Diff (`POST /api/diff`)
+### 3. Enhanced Diff Generation (`POST /api/v2/diff`)
 
-**Use Case**: Show users what changes will be made before applying them
+**Use Case**: Show users what changes will be made with project context tracking
 
 ```python
-def generate_diff(self, original_content: str, new_content: str, file_path: str) -> Dict:
-    """Generate diff between code versions"""
+def generate_diff_enhanced(self, original_content: str, new_content: str, 
+                          file_path: str, project_id: str = None) -> Dict:
+    """Enhanced diff generation with project context"""
     payload = {
         "originalContent": original_content,
         "newContent": new_content,
-        "filePath": file_path
+        "filePath": file_path,
+        "projectId": project_id  # 🆕 Project context for tracking
     }
     
-    response = self.session.post(f"{self.base_url}/api/diff", json=payload)
+    response = self.session.post(f"{self.base_url}/api/v2/diff", json=payload)
+    response.raise_for_status()
+    return response.json()
+```
+
+---
+
+### **🆕 NEW PROJECT MANAGEMENT ENDPOINTS**
+
+### 4. Project Management
+
+```python
+def create_project(self, name: str, description: str = "", preferences: Dict = None) -> Dict:
+    """Create new project for context management"""
+    payload = {
+        "name": name,
+        "description": description,
+        "preferences": preferences or {
+            "stylingFramework": "tailwind",
+            "typescript": True,
+            "preferredProvider": "openrouter",
+            "preferredModel": "x-ai/grok-4-fast:free"
+        }
+    }
+    
+    response = self.session.post(f"{self.base_url}/api/v2/projects", json=payload)
+    response.raise_for_status()
+    return response.json()
+
+def get_project(self, project_id: str) -> Dict:
+    """Get project details and context"""
+    response = self.session.get(f"{self.base_url}/api/v2/projects/{project_id}")
+    response.raise_for_status()
+    return response.json()
+
+def update_project(self, project_id: str, updates: Dict) -> Dict:
+    """Update project settings or context"""
+    response = self.session.put(f"{self.base_url}/api/v2/projects/{project_id}", json=updates)
+    response.raise_for_status()
+    return response.json()
+```
+
+### 5. Batch Processing
+
+```python
+def process_batch(self, requests: List[Dict]) -> Dict:
+    """Process multiple requests in parallel (max 10)"""
+    payload = {"requests": requests}
+    
+    response = self.session.post(f"{self.base_url}/api/v2/batch", json=payload)
+    response.raise_for_status()
+    return response.json()
+
+# Example batch request
+batch_requests = [
+    {
+        "type": "generate",
+        "prompt": "Create a login form component",
+        "projectId": "project-123",
+        "options": {"provider": "openrouter"}
+    },
+    {
+        "type": "generate", 
+        "prompt": "Create a signup form component",
+        "projectId": "project-123",
+        "options": {"provider": "openrouter"}
+    }
+]
+
+batch_result = client.process_batch(batch_requests)
+```
+
+### 6. Cache Management
+
+```python
+def clear_cache(self) -> Dict:
+    """Clear response cache"""
+    response = self.session.post(f"{self.base_url}/api/v2/cache/clear")
+    response.raise_for_status()
+    return response.json()
+
+def get_enhanced_health(self) -> Dict:
+    """Get detailed health status including cache stats"""
+    response = self.session.get(f"{self.base_url}/api/v2/health")
     response.raise_for_status()
     return response.json()
 ```
