@@ -265,7 +265,7 @@ GUIDELINES:
       filePath: fileData.filePath,
       originalContent: fileData.content,
       currentContent: fileData.content,
-      history: [],
+      history: [], // Ensure history is always initialized as array
       created: new Date().toISOString(),
       lastModified: new Date().toISOString(),
       status: 'active'
