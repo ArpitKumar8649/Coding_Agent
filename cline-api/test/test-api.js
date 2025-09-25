@@ -1,7 +1,7 @@
 const http = require('http');
 
 const API_BASE = `http://localhost:${process.env.PORT || 3000}`;
-const API_KEY = process.env.API_KEY || 'test-api-key';
+const API_KEY = process.env.API_KEY || 'test-api-key-for-development';
 
 // Helper function to make HTTP requests
 const makeRequest = (path, method = 'GET', data = null) => {
