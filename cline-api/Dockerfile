@@ -1,9 +1,9 @@
 # Multi-stage build for optimized final image
-FROM node:18-alpine AS base
+FROM node:20-alpine AS base
 
 # Install yarn globally and setup base dependencies
-RUN npm install -g yarn && \
-    apk add --no-cache dumb-init
+
+RUN apk add --no-cache dumb-init
 
 # Set the working directory
 WORKDIR /app
