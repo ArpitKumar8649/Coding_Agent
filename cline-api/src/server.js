@@ -91,13 +91,41 @@ app.use('/api/v2', enhancedRoutes);
 // Root endpoint
 app.get('/', (req, res) => {
   res.json({
-    message: 'Cline API Service',
-    version: '1.0.0',
+    message: 'Cline API Service - Enhanced Edition',
+    version: '2.0.0',
+    features: [
+      '🎯 Response Caching',
+      '📂 Project Context Management', 
+      '🔄 Iterative Edit Sessions',
+      '📡 Real-time Streaming (WebSocket + SSE)',
+      '🔄 Advanced Retry Logic',
+      '📦 Batch Processing'
+    ],
     endpoints: {
-      health: 'GET /health',
-      generate: 'POST /api/generate',
-      edit: 'POST /api/edit',
-      diff: 'POST /api/diff'
+      // Legacy v1 endpoints
+      v1: {
+        health: 'GET /health',
+        generate: 'POST /api/generate',
+        edit: 'POST /api/edit',
+        diff: 'POST /api/diff'
+      },
+      // Enhanced v2 endpoints
+      v2: {
+        health: 'GET /api/v2/health',
+        generate: 'POST /api/v2/generate',
+        edit: 'POST /api/v2/edit',
+        diff: 'POST /api/v2/diff',
+        projects: 'POST/GET/PUT /api/v2/projects',
+        sessions: 'POST/GET /api/v2/sessions',
+        batch: 'POST /api/v2/batch',
+        streaming: 'GET /api/v2/stream/generate/:streamId',
+        cache: 'POST /api/v2/cache/clear'
+      },
+      websocket: 'ws://localhost:' + PORT + '/ws'
+    },
+    integration: {
+      guide: 'See AI-WEB-BUILDER-INTEGRATION-GUIDE.md',
+      examples: 'Multiple integration patterns available'
     }
   });
 });
