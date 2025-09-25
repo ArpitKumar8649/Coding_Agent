@@ -225,11 +225,49 @@ Generate the complete file content now:`;
                 maxTokens: 4000
             });
 
-            return response.content.trim();
+            // Clean up any markdown formatting that might have been added
+            let content = response.content.trim();
+            content = this.cleanCodeContent(content);
+            
+            return content;
         } catch (error) {
             console.error('Error generating file content:', error);
             throw error;
         }
+    }
+
+    // Clean markdown formatting from generated code
+    cleanCodeContent(content) {
+        // Remove markdown code blocks
+        content = content.replace(/^```[\w]*\n/gm, '');
+        content = content.replace(/\n```$/gm, '');
+        content = content.replace(/^```[\w]*$/gm, '');
+        content = content.replace(/^```$/gm, '');
+        
+        // Remove any explanatory text that might be before/after code
+        const lines = content.split('\n');
+        let startIndex = 0;
+        let endIndex = lines.length - 1;
+        
+        // Find the first line that looks like code (has proper indentation or syntax)
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (line.match(/^(import|export|const|let|var|function|class|<|{|\/\*|\*|\/\/)/)) {
+                startIndex = i;
+                break;
+            }
+        }
+        
+        // Find the last line that looks like code
+        for (let i = lines.length - 1; i >= 0; i--) {
+            const line = lines[i].trim();
+            if (line && !line.match(/^(Here|The|This|Generated|File|Code)/i)) {
+                endIndex = i;
+                break;
+            }
+        }
+        
+        return lines.slice(startIndex, endIndex + 1).join('\n').trim();
     }
 
     // Edit existing file content with context
