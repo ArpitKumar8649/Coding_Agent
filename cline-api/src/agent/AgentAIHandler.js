@@ -168,30 +168,56 @@ Respond in JSON format:
 
     // Generate code content for a specific file
     async generateFileContent(fileSpec, projectContext) {
-        const prompt = `Generate complete, production-ready code for this file:
+        const prompt = `Generate complete, production-ready code for this file. Return ONLY the raw code content without any markdown formatting, explanations, or code blocks.
 
 FILE SPECIFICATION:
 - Path: ${fileSpec.path}
 - Description: ${fileSpec.description}
 - Type: ${fileSpec.type || 'component'}
-- Template: ${fileSpec.template || 'custom'}
 
 PROJECT CONTEXT:
 - Framework: ${projectContext.framework}
 - Features: ${projectContext.features.join(', ')}
 - Technologies: ${projectContext.technologies.join(', ')}
-- Existing Files: ${projectContext.existingFiles?.join(', ') || 'none'}
 
-REQUIREMENTS:
-1. Generate complete, functional code
-2. Include proper imports and dependencies
-3. Follow ${projectContext.framework} best practices
-4. Implement ${fileSpec.description} fully
-5. Use modern coding patterns and standards
-6. Include error handling where appropriate
-7. Add helpful comments for complex logic
+CRITICAL REQUIREMENTS:
+1. Return ONLY raw code - NO markdown code blocks (```)
+2. NO explanations or comments outside the code
+3. Generate complete, functional file content
+4. Include proper imports and exports
+5. Follow ${projectContext.framework} best practices
+6. Make the code immediately usable
+7. Ensure proper syntax and structure
 
-Generate ONLY the code content, no explanations or markdown formatting.`;
+EXAMPLES OF CORRECT OUTPUT FORMAT:
+
+For React component:
+import React, { useState } from 'react';
+import './App.css';
+
+function App() {
+  const [count, setCount] = useState(0);
+  
+  return (
+    <div className="App">
+      <h1>Counter: {count}</h1>
+      <button onClick={() => setCount(count + 1)}>+</button>
+    </div>
+  );
+}
+
+export default App;
+
+For package.json:
+{
+  "name": "my-app",
+  "version": "1.0.0",
+  "dependencies": {
+    "react": "^18.2.0"
+  }
+}
+
+Generate the complete file content now:`;
 
         try {
             const response = await this.provider.generateCode(prompt, {
