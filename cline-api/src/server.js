@@ -6,6 +6,7 @@ require('dotenv').config();
 
 const codeRoutes = require('./routes/code');
 const enhancedRoutes = require('./routes/enhanced');
+const agentRoutes = require('./routes/agent');
 const { errorHandler, notFound } = require('./middleware/error');
 const { authenticate } = require('./middleware/auth');
 const { rateLimiter } = require('./middleware/rateLimit');
