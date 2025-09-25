@@ -68,15 +68,18 @@ class ContextService {
       const cacheKey = `context:${projectId}`;
       const cached = await this.cache.get(cacheKey);
       if (cached) {
+        console.log(`📂 Context loaded from cache: ${projectId}`);
         return this.deserializeContext(cached);
       }
       
       // Try memory backup
       const memContext = this.contexts.get(projectId);
       if (memContext) {
+        console.log(`📂 Context loaded from memory: ${projectId}`);
         return this.deserializeContext(memContext);
       }
       
+      console.log(`❌ Context not found: ${projectId}, available contexts: ${this.contexts.size}`);
       return null;
     } catch (error) {
       console.error('Error getting project context:', error);
