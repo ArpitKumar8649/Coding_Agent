@@ -367,10 +367,12 @@ GUIDELINES:
       
       // Save to cache with 24 hour TTL
       const cacheKey = `context:${projectId}`;
-      await this.cache.set(cacheKey, serialized, 86400);
+      const cacheResult = await this.cache.set(cacheKey, serialized, 86400);
+      console.log(`💾 Context saved to cache: ${projectId}, success: ${cacheResult}`);
       
       // Save to memory backup
       this.contexts.set(projectId, serialized);
+      console.log(`💾 Context saved to memory: ${projectId}, total contexts: ${this.contexts.size}`);
       
       return true;
     } catch (error) {
