@@ -96,9 +96,11 @@ const editCode = async (filePath, content, instructions, options = {}) => {
     const editPrompt = buildEditPrompt(filePath, content, instructions, options);
     logs.push(`[${requestId}] Edit prompt prepared for ${filePath || 'file'}`);
     
-    // Get edited code from LLM
+    // Get edited code from LLM with retry logic
     logs.push(`[${requestId}] Calling LLM API...`);
-    const llmResponse = await llmProvider.editCode(editPrompt, options);
+    const llmResponse = await retryWithExponentialBackoff(async () => {
+      return await llmProvider.editCode(editPrompt, options);
+    }, 3, 1000);
     logs.push(`[${requestId}] LLM response received`);
     
     // Parse the edited content
