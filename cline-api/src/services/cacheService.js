@@ -135,6 +135,11 @@ class CacheService {
    * Check if request is cacheable
    */
   isCacheable(request) {
+    // Always cache context objects (they don't have these fields)
+    if (!request.hasOwnProperty('options') && !request.hasOwnProperty('prompt')) {
+      return true;
+    }
+    
     // Don't cache if explicitly disabled
     if (request.options?.noCache === true) {
       return false;
