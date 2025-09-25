@@ -96,31 +96,47 @@ def test_authentication():
 
 ## 📡 API Endpoints Reference
 
-### 1. Generate Code (`POST /api/generate`)
+### **🎯 ENHANCED v2 ENDPOINTS (RECOMMENDED)**
 
-**Use Case**: Create new React components, websites, or HTML/CSS from scratch
+### 1. Enhanced Generate Code (`POST /api/v2/generate`)
+
+**Use Case**: Create new React components, websites, or HTML/CSS with context awareness and caching
+
+**✅ NEW FEATURES:**
+- **Project Context**: Maintains context across requests
+- **Response Caching**: Identical requests return cached results
+- **Smart Provider Selection**: Auto-fallback between LLM providers
+- **Session Tracking**: Track generation history
 
 ```python
-def generate_code(self, prompt: str, options: Dict = None) -> Dict:
-    """Generate new code from natural language prompt"""
+def generate_code_enhanced(self, prompt: str, options: Dict = None, project_id: str = None, user_id: str = None) -> Dict:
+    """Enhanced code generation with context and caching"""
     if options is None:
         options = {}
     
     payload = {
         "prompt": prompt,
+        "projectId": project_id,  # 🆕 Project context
+        "userId": user_id,        # 🆕 User tracking
         "options": {
             "language": options.get("language", "javascript"),
             "style": options.get("style", "modern"),
-            "provider": options.get("provider", "anthropic"),
-            "model": options.get("model", "claude-3-5-sonnet-20241022"),
+            "provider": options.get("provider", "openrouter"),
+            "model": options.get("model", "x-ai/grok-4-fast:free"),
             "maxTokens": options.get("maxTokens", 4000),
-            "temperature": options.get("temperature", 0.1)
+            "temperature": options.get("temperature", 0.1),
+            "noCache": options.get("noCache", False)  # 🆕 Disable caching
         }
     }
     
-    response = self.session.post(f"{self.base_url}/api/generate", json=payload)
+    response = self.session.post(f"{self.base_url}/api/v2/generate", json=payload)
     response.raise_for_status()
     return response.json()
+
+# 🆕 Legacy v1 endpoint still available at /api/generate
+def generate_code_legacy(self, prompt: str, options: Dict = None) -> Dict:
+    """Original generate endpoint (v1) - still supported"""
+    # ... same as before
 ```
 
 ### 2. Edit Code (`POST /api/edit`)
