@@ -2,6 +2,35 @@ const { getLLMProvider } = require('./llmService');
 const { createDiff } = require('../utils/diff');
 const { v4: uuidv4 } = require('uuid');
 
+// Enhanced retry logic with exponential backoff
+async function retryWithExponentialBackoff(operation, maxRetries = 3, baseDelay = 1000) {
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      return await operation();
+    } catch (error) {
+      // Don't retry on authentication errors or client errors (4xx)
+      if (error.message.includes('API key') || 
+          error.message.includes('authentication') ||
+          error.message.includes('400') ||
+          error.message.includes('401') ||
+          error.message.includes('403')) {
+        throw error;
+      }
+      
+      // Don't retry on last attempt
+      if (attempt === maxRetries - 1) {
+        throw new Error(`Max retries (${maxRetries}) exceeded. Last error: ${error.message}`);
+      }
+      
+      // Calculate delay with exponential backoff and jitter
+      const delay = baseDelay * Math.pow(2, attempt) + Math.random() * 1000;
+      console.warn(`Attempt ${attempt + 1} failed: ${error.message}. Retrying in ${Math.round(delay)}ms...`);
+      
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }
+}
+
 /**
  * Generate new code based on requirements
  */
