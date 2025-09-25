@@ -111,7 +111,7 @@ class OpenRouterProvider {
 
   async generateCode(prompt, options = {}) {
     try {
-      const model = options.model || 'x-ai/grok-beta'; // Default to free xAI Grok model
+      const model = options.model || process.env.DEFAULT_MODEL || 'x-ai/grok-beta'; // Use env var or fallback to xAI Grok
       
       const response = await axios.post(`${this.baseUrl}/chat/completions`, {
         model: model,
