@@ -49,9 +49,11 @@ const generateCode = async (prompt, options = {}) => {
     const enhancedPrompt = buildGenerationPrompt(prompt, options);
     logs.push(`[${requestId}] Enhanced prompt prepared`);
     
-    // Generate code using LLM
+    // Generate code using LLM with retry logic
     logs.push(`[${requestId}] Calling LLM API...`);
-    const llmResponse = await llmProvider.generateCode(enhancedPrompt, options);
+    const llmResponse = await retryWithExponentialBackoff(async () => {
+      return await llmProvider.generateCode(enhancedPrompt, options);
+    }, 3, 1000);
     logs.push(`[${requestId}] LLM response received`);
     
     // Parse the response to extract files
