@@ -108,8 +108,8 @@ class CacheService {
    */
   async set(key, value, ttlSeconds = 3600) {
     try {
-      // Don't cache errors or failed requests
-      if (!value.success) {
+      // Don't cache errors or failed requests (but allow context objects without success field)
+      if (value.hasOwnProperty('success') && !value.success) {
         return false;
       }
       
