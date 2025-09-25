@@ -15,6 +15,7 @@ const EnhancedApiService = require('./services/enhancedApiService');
 const StreamingService = require('./services/streamingService');
 
 const app = express();
+const server = http.createServer(app);
 const PORT = process.env.PORT || 3000;
 
 // Security middleware
