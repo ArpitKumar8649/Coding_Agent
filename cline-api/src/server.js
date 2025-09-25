@@ -93,17 +93,32 @@ app.use('/api/agent', agentRoutes);
 // Root endpoint
 app.get('/', (req, res) => {
   res.json({
-    message: 'Cline API Service - Enhanced Edition',
-    version: '2.0.0',
+    message: 'Cline API Service - Agent Edition',
+    version: '3.0.0',
     features: [
+      '🤖 Autonomous Coding Agent',
+      '📋 Multi-Step Project Planning', 
+      '📁 Complete File Management',
       '🎯 Response Caching',
       '📂 Project Context Management', 
-      '🔄 Iterative Edit Sessions',
+      '🔄 Iterative Development',
       '📡 Real-time Streaming (WebSocket + SSE)',
       '🔄 Advanced Retry Logic',
       '📦 Batch Processing'
     ],
     endpoints: {
+      // Agent endpoints (NEW)
+      agent: {
+        createProject: 'POST /api/agent/create-project',
+        continueProject: 'POST /api/agent/continue-project',
+        getProjects: 'GET /api/agent/projects',
+        getProject: 'GET /api/agent/projects/:id/status',
+        getFiles: 'GET /api/agent/projects/:id/files',
+        cancelProject: 'POST /api/agent/projects/:id/cancel',
+        cleanup: 'POST /api/agent/cleanup',
+        stats: 'GET /api/agent/stats',
+        health: 'GET /api/agent/health'
+      },
       // Legacy v1 endpoints
       v1: {
         health: 'GET /health',
@@ -126,8 +141,18 @@ app.get('/', (req, res) => {
       websocket: 'ws://localhost:' + PORT + '/ws'
     },
     integration: {
-      guide: 'See AI-WEB-BUILDER-INTEGRATION-GUIDE.md',
-      examples: 'Multiple integration patterns available'
+      guide: 'See CLINE_AGENT_API_IMPLEMENTATION_GUIDE.md',
+      examples: 'Full autonomous coding agent with multi-step execution'
+    },
+    usage: {
+      createProject: {
+        url: 'POST /api/agent/create-project',
+        body: {
+          description: 'Create a React todo app with API integration',
+          preferences: { framework: 'React', styling: 'Tailwind CSS' },
+          streaming: true
+        }
+      }
     }
   });
 });
