@@ -139,13 +139,21 @@ def generate_code_legacy(self, prompt: str, options: Dict = None) -> Dict:
     # ... same as before
 ```
 
-### 2. Edit Code (`POST /api/edit`)
+### 2. Enhanced Edit Code (`POST /api/v2/edit`)
 
-**Use Case**: Modify existing components based on user feedback
+**Use Case**: Modify existing components with session management and preview capability
+
+**✅ NEW FEATURES:**
+- **Edit Sessions**: Track editing history with undo capability
+- **Preview Mode**: See changes before applying them
+- **Project Context**: Edit with awareness of entire project structure
+- **Iterative Editing**: Build on previous edits in same session
 
 ```python
-def edit_code(self, file_path: str, content: str, instructions: str, options: Dict = None) -> Dict:
-    """Edit existing code with specific instructions"""
+def edit_code_enhanced(self, file_path: str, content: str, instructions: str, 
+                      project_id: str = None, session_id: str = None, 
+                      preview_only: bool = False, options: Dict = None) -> Dict:
+    """Enhanced code editing with session management"""
     if options is None:
         options = {}
     
@@ -153,14 +161,30 @@ def edit_code(self, file_path: str, content: str, instructions: str, options: Di
         "filePath": file_path,
         "content": content,
         "instructions": instructions,
+        "projectId": project_id,      # 🆕 Project context
+        "sessionId": session_id,      # 🆕 Edit session tracking
+        "previewOnly": preview_only,  # 🆕 Preview changes without applying
         "options": {
-            "provider": options.get("provider", "anthropic"),
-            "model": options.get("model", "claude-3-5-sonnet-20241022"),
+            "provider": options.get("provider", "openrouter"),
+            "model": options.get("model", "x-ai/grok-4-fast:free"),
             "temperature": options.get("temperature", 0.1)
         }
     }
     
-    response = self.session.post(f"{self.base_url}/api/edit", json=payload)
+    response = self.session.post(f"{self.base_url}/api/v2/edit", json=payload)
+    response.raise_for_status()
+    return response.json()
+
+# 🆕 Create Edit Session for iterative editing
+def create_edit_session(self, project_id: str, file_path: str, content: str) -> Dict:
+    """Create new edit session for iterative modifications"""
+    payload = {
+        "projectId": project_id,
+        "filePath": file_path,
+        "content": content
+    }
+    
+    response = self.session.post(f"{self.base_url}/api/v2/sessions", json=payload)
     response.raise_for_status()
     return response.json()
 ```
