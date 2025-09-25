@@ -290,7 +290,7 @@ router.get('/sessions/:id', async (req, res, next) => {
         created: session.created,
         lastModified: session.lastModified,
         status: session.status,
-        historyCount: session.history.length,
+        historyCount: session.history ? session.history.length : 0,
         currentContent: session.currentContent
       }
     });
