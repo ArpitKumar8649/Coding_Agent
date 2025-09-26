@@ -65,10 +65,10 @@ const EnhancedMessageList = ({ messages, isStreaming, currentMode, currentProjec
   return (
     <div 
       ref={messagesContainerRef}
-      className="flex-1 overflow-y-auto overflow-x-hidden"
+      className="flex-1 overflow-y-auto overflow-x-hidden w-full"
       style={{ scrollBehavior: 'smooth' }}
     >
-      <div className="px-4 py-6 space-y-2 min-h-full">
+      <div className="px-3 sm:px-4 py-4 sm:py-6 space-y-2 min-h-full w-full max-w-4xl mx-auto">
         {messages.map((message, index) => {
           const key = message.id || `${message.type}-${index}`;
           
