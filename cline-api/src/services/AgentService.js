@@ -11,8 +11,6 @@ const StreamingService = require('./streamingService');
 
 class AgentService {
     constructor(options = {}) {
-        this.cache = new CacheService();
-        this.contextService = new ContextService(this.cache);
         this.streamingService = options.streamingService || null;
         this.defaultWorkspace = options.defaultWorkspace || '/tmp/cline-projects';
         
