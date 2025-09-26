@@ -73,7 +73,7 @@ const EnhancedMessageInput = ({
   };
 
   return (
-    <div className="px-4 py-4 bg-gray-800 border-t border-gray-700">
+    <div className="px-3 sm:px-4 py-3 sm:py-4 bg-gray-800 border-t border-gray-700 w-full">
       {/* Input Container */}
       <div className={`relative border-2 rounded-xl transition-colors ${
         isFocused ? getModeColor() : 'border-gray-700'
