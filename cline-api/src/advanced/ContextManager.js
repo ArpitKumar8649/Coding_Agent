@@ -1,5 +1,5 @@
 /**
- * Advanced Context Manager - Full project understanding and state management
+ * Advanced Context Manager - Enhanced project understanding and context awareness
  */
 
 const fs = require('fs').promises;
@@ -7,122 +7,101 @@ const path = require('path');
 
 class ContextManager {
     constructor() {
-        this.contexts = new Map(); // sessionId -> context data
-        this.projectAnalyzer = new ProjectAnalyzer();
-        this.dependencyTracker = new DependencyTracker();
-        this.codePatternRecognizer = new CodePatternRecognizer();
+        this.contexts = new Map();
+        this.analyzer = new ProjectAnalyzer();
+        this.patternRecognizer = new CodePatternRecognizer();
     }
 
-    async analyzeProject(sessionId, taskData) {
-        const { description, requirements, workspace } = taskData;
+    async analyzeProject(sessionId, specs) {
+        console.log(`🔍 Analyzing project for session: ${sessionId}`);
         
-        // 1. Analyze existing project structure (if any)
-        const existingStructure = await this.analyzeExistingStructure(workspace);
-        
-        // 2. Understand requirements and extract technical details
-        const technicalSpecs = await this.extractTechnicalSpecs(description, requirements);
-        
-        // 3. Plan file structure and dependencies
-        const projectPlan = await this.createProjectPlan(technicalSpecs, existingStructure);
-        
-        // 4. Build comprehensive context
+        // Create comprehensive context
         const context = {
             sessionId,
-            workspace,
             timestamp: Date.now(),
             
-            // Project Understanding
-            projectType: technicalSpecs.projectType,
-            framework: technicalSpecs.framework,
-            technologies: technicalSpecs.technologies,
-            architecture: technicalSpecs.architecture,
+            // Project specifications
+            description: specs.description,
+            requirements: specs.requirements || {},
+            workspace: specs.workspace,
             
-            // File Planning
-            requiredFiles: projectPlan.files,
-            dependencies: projectPlan.dependencies,
-            fileRelationships: projectPlan.relationships,
+            // Detected properties
+            projectType: this.detectProjectType(specs.description),
+            framework: this.detectFramework(specs.description, specs.requirements),
+            technologies: this.extractTechnologies(specs.description, specs.requirements),
+            architecture: this.suggestArchitecture(specs.description, specs.requirements),
+            features: this.extractFeatures(specs.description, specs.requirements),
+            complexity: this.assessComplexity(specs.description, specs.requirements),
+            qualityLevel: specs.qualityLevel || 'advanced',
             
-            // Code Standards
-            codeStyle: technicalSpecs.codeStyle,
-            namingConventions: technicalSpecs.namingConventions,
-            patterns: technicalSpecs.patterns,
-            
-            // Quality Requirements
-            qualityLevel: requirements.quality || 'advanced',
-            features: technicalSpecs.features,
-            constraints: requirements.constraints || [],
-            
-            // Learning from previous sessions
-            learnedPatterns: await this.getLearningHistory(technicalSpecs),
-            
-            // State tracking
+            // File planning
+            requiredFiles: [],
             completedFiles: [],
-            pendingFiles: [],
-            errors: [],
-            feedback: []
+            dependencies: {},
+            fileRelationships: {},
+            buildOrder: [],
+            
+            // Quality and validation
+            codeStyle: 'modern',
+            testingFramework: 'none',
+            linting: true,
+            formatting: true,
+            
+            // User feedback tracking
+            feedback: [],
+            iterations: 0
         };
-        
+
+        // Analyze existing workspace if it exists
+        if (specs.workspace) {
+            try {
+                const existingStructure = await this.analyzeExistingWorkspace(specs.workspace);
+                context.existingStructure = existingStructure;
+                
+                // Merge existing analysis
+                if (existingStructure.projectType !== 'unknown') {
+                    context.projectType = existingStructure.projectType;
+                }
+                
+                if (existingStructure.framework !== 'unknown') {
+                    context.framework = existingStructure.framework;
+                }
+            } catch (error) {
+                console.log('No existing workspace found, creating new project context');
+            }
+        }
+
+        // Plan required files based on analysis
+        const planner = new ProjectPlanner(context, context.existingStructure);
+        context.requiredFiles = await planner.planRequiredFiles();
+        context.dependencies = await planner.identifyDependencies();
+        context.fileRelationships = await planner.mapFileRelationships();
+        context.buildOrder = await planner.determineBuildOrder();
+
+        // Store context
         this.contexts.set(sessionId, context);
+        
+        console.log(`✅ Project analysis complete - ${context.projectType} with ${context.framework}`);
+        
         return context;
     }
 
-    async analyzeExistingStructure(workspace) {
+    async analyzeExistingWorkspace(workspacePath) {
         try {
-            const structure = {};
-            
-            // Check if workspace exists and has files
-            const exists = await fs.access(workspace).then(() => true).catch(() => false);
-            if (!exists) {
-                return { exists: false, files: [], structure: {} };
-            }
-            
-            // Analyze directory structure
-            const files = await this.scanDirectory(workspace);
-            
-            // Detect project type and framework
-            const projectInfo = await this.projectAnalyzer.detectProjectType(files);
-            
-            // Analyze existing code patterns
-            const codePatterns = await this.codePatternRecognizer.analyzePatterns(files, workspace);
+            const files = await this.scanDirectory(workspacePath);
+            const projectAnalysis = await this.analyzer.detectProjectType(files);
+            const patterns = await this.patternRecognizer.analyzePatterns(files, workspacePath);
             
             return {
-                exists: true,
-                files,
-                projectInfo,
-                codePatterns,
-                structure: await this.buildStructureTree(workspace)
+                ...projectAnalysis,
+                patterns,
+                fileCount: files.length,
+                lastModified: new Date().toISOString()
             };
         } catch (error) {
-            console.error('Error analyzing existing structure:', error);
-            return { exists: false, error: error.message };
+            console.error('Error analyzing existing workspace:', error);
+            return { type: 'unknown' };
         }
-    }
-
-    async extractTechnicalSpecs(description, requirements) {
-        // AI-powered extraction of technical requirements
-        const specs = {
-            projectType: this.detectProjectType(description),
-            framework: this.detectFramework(description, requirements),
-            technologies: this.extractTechnologies(description, requirements),
-            architecture: this.suggestArchitecture(description, requirements),
-            features: this.extractFeatures(description, requirements),
-            codeStyle: requirements.codeStyle || 'modern',
-            namingConventions: requirements.namingConventions || 'camelCase',
-            patterns: this.suggestPatterns(description, requirements)
-        };
-        
-        return specs;
-    }
-
-    async createProjectPlan(specs, existingStructure) {
-        const planner = new ProjectPlanner(specs, existingStructure);
-        
-        return {
-            files: await planner.planRequiredFiles(),
-            dependencies: await planner.identifyDependencies(),
-            relationships: await planner.mapFileRelationships(),
-            buildOrder: await planner.determineBuildOrder()
-        };
     }
 
     async getContext(sessionId) {
@@ -158,6 +137,23 @@ class ContextManager {
         
         // Apply feedback to improve future generations
         await this.applyFeedbackLearning(context, feedback);
+    }
+
+    async applyFeedbackLearning(context, feedback) {
+        // Analyze feedback and adjust context
+        if (feedback.toLowerCase().includes('simpler')) {
+            context.complexity = 'simple';
+        }
+        
+        if (feedback.toLowerCase().includes('more advanced')) {
+            context.qualityLevel = 'advanced';
+        }
+        
+        if (feedback.toLowerCase().includes('typescript')) {
+            context.technologies.push('TypeScript');
+        }
+        
+        context.iterations++;
     }
 
     // Helper methods for technical analysis
@@ -390,24 +386,24 @@ class ProjectPlanner {
         // Basic structure based on project type and framework
         if (this.specs.framework === 'React') {
             files.push(
-                { path: 'package.json', type: 'config', priority: 1 },
-                { path: 'src/index.js', type: 'entry', priority: 2 },
-                { path: 'src/App.js', type: 'component', priority: 3 },
-                { path: 'src/App.css', type: 'style', priority: 4 },
-                { path: 'public/index.html', type: 'template', priority: 5 }
+                { path: 'package.json', type: 'config', priority: 1, description: 'Project configuration and dependencies' },
+                { path: 'src/index.js', type: 'entry', priority: 2, description: 'React application entry point' },
+                { path: 'src/App.js', type: 'component', priority: 3, description: 'Main React application component' },
+                { path: 'src/App.css', type: 'style', priority: 4, description: 'Main application styles' },
+                { path: 'public/index.html', type: 'template', priority: 5, description: 'HTML template' }
             );
             
             // Add feature-specific files
             if (this.specs.features.includes('authentication')) {
                 files.push(
-                    { path: 'src/components/Login.js', type: 'component', priority: 6 },
-                    { path: 'src/components/Register.js', type: 'component', priority: 7 }
+                    { path: 'src/components/Login.js', type: 'component', priority: 6, description: 'Login component' },
+                    { path: 'src/components/Register.js', type: 'component', priority: 7, description: 'Registration component' }
                 );
             }
             
             if (this.specs.features.includes('dashboard')) {
                 files.push(
-                    { path: 'src/components/Dashboard.js', type: 'component', priority: 8 }
+                    { path: 'src/components/Dashboard.js', type: 'component', priority: 8, description: 'Dashboard component' }
                 );
             }
         }

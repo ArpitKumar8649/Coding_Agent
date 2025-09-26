@@ -1,194 +1,95 @@
-const { Anthropic } = require('@anthropic-ai/sdk');
-const { OpenAI } = require('openai');
-const axios = require('axios');
-// const { GoogleGenerativeAI } = require('@google/genai'); // Removed for compatibility
-
-class LLMError extends Error {
-  constructor(message, provider) {
-    super(message);
-    this.name = 'LLMError';
-    this.provider = provider;
-  }
-}
-
 /**
- * Anthropic (Claude) Provider
+ * Enhanced LLM Service - Updated for Advanced Cline API
  */
-class AnthropicProvider {
-  constructor() {
-    this.name = 'anthropic';
-    this.client = new Anthropic({
-      apiKey: process.env.ANTHROPIC_API_KEY,
-    });
-  }
 
-  async generateCode(prompt, options = {}) {
-    try {
-      const model = options.model || process.env.DEFAULT_MODEL || 'claude-3-5-sonnet-20241022';
-      
-      const response = await this.client.messages.create({
-        model: model,
-        max_tokens: options.maxTokens || 4000,
-        temperature: options.temperature || 0.1,
-        messages: [
-          {
-            role: 'user',
-            content: prompt
-          }
-        ]
-      });
+const OpenRouterService = require('./openrouterService');
 
-      return {
-        content: response.content[0].text,
-        model: model,
-        tokensUsed: response.usage?.total_tokens || 0
-      };
-    } catch (error) {
-      throw new LLMError(`Anthropic API Error: ${error.message}`, 'anthropic');
+class LLMService {
+    constructor() {
+        this.provider = process.env.DEFAULT_LLM_PROVIDER || 'openrouter';
+        this.openrouter = new OpenRouterService();
+        this.currentProvider = this.openrouter; // Default to OpenRouter
     }
-  }
 
-  async editCode(prompt, options = {}) {
-    return this.generateCode(prompt, options);
-  }
-}
-
-/**
- * OpenAI Provider
- */
-class OpenAIProvider {
-  constructor() {
-    this.name = 'openai';
-    this.client = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
-    });
-  }
-
-  async generateCode(prompt, options = {}) {
-    try {
-      const model = options.model || 'gpt-4';
-      
-      const response = await this.client.chat.completions.create({
-        model: model,
-        max_tokens: options.maxTokens || 4000,
-        temperature: options.temperature || 0.1,
-        messages: [
-          {
-            role: 'system',
-            content: 'You are an expert software developer. Generate clean, well-structured code.'
-          },
-          {
-            role: 'user',
-            content: prompt
-          }
-        ]
-      });
-
-      return {
-        content: response.choices[0].message.content,
-        model: model,
-        tokensUsed: response.usage?.total_tokens || 0
-      };
-    } catch (error) {
-      throw new LLMError(`OpenAI API Error: ${error.message}`, 'openai');
-    }
-  }
-
-  async editCode(prompt, options = {}) {
-    return this.generateCode(prompt, options);
-  }
-}
-
-/**
- * OpenRouter Provider (supports multiple models including xAI Grok)
- */
-class OpenRouterProvider {
-  constructor() {
-    this.name = 'openrouter';
-    this.apiKey = process.env.OPENROUTER_API_KEY;
-    this.baseUrl = 'https://openrouter.ai/api/v1';
-  }
-
-  async generateCode(prompt, options = {}) {
-    try {
-      const model = options.model || process.env.DEFAULT_MODEL || 'x-ai/grok-beta'; // Use env var or fallback to xAI Grok
-      
-      const response = await axios.post(`${this.baseUrl}/chat/completions`, {
-        model: model,
-        messages: [
-          {
-            role: 'system',
-            content: 'You are an expert software developer. Generate clean, well-structured code based on requirements.'
-          },
-          {
-            role: 'user',
-            content: prompt
-          }
-        ],
-        max_tokens: options.maxTokens || 4000,
-        temperature: options.temperature || 0.1,
-      }, {
-        headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
-          'Content-Type': 'application/json',
-          'HTTP-Referer': process.env.HTTP_REFERER || 'http://localhost:3000',
-          'X-Title': 'Cline API Service'
+    async generateResponse(prompt, options = {}) {
+        try {
+            console.log('🤖 Generating LLM response...');
+            
+            const response = await this.currentProvider.generateResponse(prompt, options);
+            
+            console.log(`✅ Response generated (${response.usage?.total_tokens || 'unknown'} tokens)`);
+            
+            return response;
+        } catch (error) {
+            console.error('❌ LLM generation failed:', error.message);
+            throw error;
         }
-      });
-
-      return {
-        content: response.data.choices[0].message.content,
-        model: model,
-        tokensUsed: response.data.usage?.total_tokens || 0
-      };
-    } catch (error) {
-      const errorMessage = error.response?.data?.error?.message || error.message;
-      throw new LLMError(`OpenRouter API Error: ${errorMessage}`, 'openrouter');
     }
-  }
 
-  async editCode(prompt, options = {}) {
-    return this.generateCode(prompt, options);
-  }
+    async generateStream(prompt, options = {}) {
+        try {
+            console.log('🌊 Starting LLM stream...');
+            
+            const stream = await this.currentProvider.generateStream(prompt, options);
+            
+            return stream;
+        } catch (error) {
+            console.error('❌ LLM streaming failed:', error.message);
+            throw error;
+        }
+    }
+
+    async generateWithContext(systemPrompt, conversationHistory = [], userMessage = '', options = {}) {
+        try {
+            // Build conversation messages
+            const messages = [];
+            
+            if (systemPrompt) {
+                messages.push({
+                    role: 'system',
+                    content: systemPrompt
+                });
+            }
+            
+            // Add conversation history
+            messages.push(...conversationHistory);
+            
+            // Add current user message
+            if (userMessage) {
+                messages.push({
+                    role: 'user',
+                    content: userMessage
+                });
+            }
+            
+            const response = await this.currentProvider.generateWithContext(messages, options);
+            
+            return response;
+        } catch (error) {
+            console.error('❌ Context generation failed:', error.message);
+            throw error;
+        }
+    }
+
+    async listAvailableModels() {
+        return await this.currentProvider.listAvailableModels();
+    }
+
+    async getModelInfo(modelId) {
+        return await this.currentProvider.getModelInfo(modelId);
+    }
+
+    // Factory method for getting provider instance
+    static getLLMProvider(providerName = 'openrouter') {
+        switch (providerName) {
+            case 'openrouter':
+                return new OpenRouterService();
+            default:
+                return new OpenRouterService();
+        }
+    }
 }
 
-/**
- * Get the appropriate LLM provider
- */
-const getLLMProvider = (providerName) => {
-  const provider = providerName || process.env.DEFAULT_LLM_PROVIDER || 'openrouter';
-  
-  switch (provider.toLowerCase()) {
-    case 'anthropic':
-      if (!process.env.ANTHROPIC_API_KEY) {
-        throw new Error('ANTHROPIC_API_KEY environment variable is required');
-      }
-      return new AnthropicProvider();
-    
-    case 'openai':
-      if (!process.env.OPENAI_API_KEY) {
-        throw new Error('OPENAI_API_KEY environment variable is required');
-      }
-      return new OpenAIProvider();
-    
-    case 'openrouter':
-      if (!process.env.OPENROUTER_API_KEY) {
-        throw new Error('OPENROUTER_API_KEY environment variable is required');
-      }
-      return new OpenRouterProvider();
-    
-    case 'google':
-      throw new Error('Google Gemini provider is temporarily disabled. Use anthropic, openai, or openrouter instead.');
-    
-    default:
-      throw new Error(`Unsupported LLM provider: ${provider}. Supported providers: anthropic, openai, openrouter`);
-  }
-};
-
-module.exports = {
-  getLLMProvider,
-  LLMError,
-  AnthropicProvider,
-  OpenAIProvider,
-  OpenRouterProvider
-};
+// Export both class and factory function
+module.exports = LLMService;
+module.exports.getLLMProvider = LLMService.getLLMProvider;

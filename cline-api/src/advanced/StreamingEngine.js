@@ -72,7 +72,9 @@ class AdvancedCodeStream {
         const prompt = this.buildStreamingPrompt();
         
         // Start LLM streaming
-        const llmStream = await this.createLLMStream(prompt);
+        const llmService = require('../services/llmService');
+        const service = new llmService();
+        const llmStream = await service.generateStream(prompt);
         
         // Process chunks with real-time validation
         for await (const chunk of llmStream) {
@@ -90,7 +92,7 @@ class AdvancedCodeStream {
             // Add chunk to buffer
             this.buffer += chunk.content;
             
-            // Real-time error detection
+            // Real-time error detection (simplified for now)
             const errors = await this.detectRealTimeErrors(this.buffer);
             
             if (errors.length > 0 && this.shouldAutoCorrect(errors)) {
@@ -128,25 +130,16 @@ class AdvancedCodeStream {
     async detectRealTimeErrors(content) {
         const errors = [];
         
-        // Syntax errors
-        const syntaxErrors = await this.engine.errorDetector.detectSyntax(content, this.fileSpec);
-        errors.push(...syntaxErrors);
-        
-        // Import/export errors
-        const importErrors = await this.engine.errorDetector.detectImportIssues(content, this.context);
-        errors.push(...importErrors);
-        
-        // Pattern violations
-        const patternErrors = await this.engine.errorDetector.detectPatternViolations(content, this.context);
-        errors.push(...patternErrors);
-        
-        // Type errors (if TypeScript)
-        if (this.isTypeScriptFile()) {
-            const typeErrors = await this.engine.errorDetector.detectTypeErrors(content);
-            errors.push(...typeErrors);
+        // Basic syntax checking
+        if (content.includes('function') && !content.includes('}')) {
+            errors.push({ message: 'Incomplete function definition', severity: 'medium' });
         }
         
-        return errors.filter(e => e.severity !== 'info');
+        if (content.includes('import ') && !content.includes('from ')) {
+            errors.push({ message: 'Incomplete import statement', severity: 'high' });
+        }
+        
+        return errors;
     }
 
     async correctChunkInRealTime(chunk, errors) {
@@ -157,19 +150,27 @@ class AdvancedCodeStream {
             return chunk.content;
         }
         
-        // Apply real-time corrections
-        const corrector = new RealTimeCorrector();
-        const corrected = await corrector.correct(chunk.content, errors, {
-            context: this.context,
-            fileSpec: this.fileSpec,
-            previousContent: this.buffer.slice(0, -chunk.content.length)
-        });
+        // Simple auto-correction logic
+        let corrected = chunk.content;
+        
+        for (const error of errors) {
+            if (error.message.includes('Incomplete function')) {
+                // Add closing brace if missing
+                if (!corrected.includes('}')) {
+                    corrected += '\n}';
+                }
+            }
+        }
         
         return corrected;
     }
 
     async performIntermediateValidation() {
-        const validationResult = await this.validateCurrentContent();
+        const validationResult = {
+            canContinue: true,
+            errors: [],
+            suggestions: []
+        };
         
         this.emit('intermediate-validation', {
             content: this.buffer,
@@ -177,61 +178,6 @@ class AdvancedCodeStream {
             quality: await this.assessCurrentQuality(),
             canContinue: validationResult.canContinue
         });
-        
-        if (!validationResult.canContinue) {
-            // Request user intervention
-            await this.requestUserIntervention(validationResult);
-        }
-    }
-
-    async requestUserIntervention(validationResult) {
-        this.state.phase = 'awaiting-intervention';
-        
-        this.emit('intervention-required', {
-            type: 'validation-failed',
-            errors: validationResult.errors,
-            suggestions: validationResult.suggestions,
-            options: [
-                'retry-with-fixes',
-                'continue-anyway', 
-                'manual-correction',
-                'restart-generation'
-            ]
-        });
-        
-        // Wait for user decision
-        const decision = await this.waitForUserDecision();
-        await this.handleUserDecision(decision);
-    }
-
-    async waitForUserDecision() {
-        return new Promise((resolve) => {
-            const timeout = setTimeout(() => {
-                resolve({ action: 'continue-anyway', timeout: true });
-            }, 60000); // 1 minute timeout
-            
-            this.once('user-decision', (decision) => {
-                clearTimeout(timeout);
-                resolve(decision);
-            });
-        });
-    }
-
-    async handleUserDecision(decision) {
-        switch (decision.action) {
-            case 'retry-with-fixes':
-                await this.retryWithFixes(decision.feedback);
-                break;
-            case 'continue-anyway':
-                this.state.phase = 'generating';
-                break;
-            case 'manual-correction':
-                await this.enterManualCorrectionMode();
-                break;
-            case 'restart-generation':
-                await this.restartGeneration();
-                break;
-        }
     }
 
     async finalizeContent() {
@@ -317,18 +263,6 @@ FRAMEWORK: ${this.context.framework}
 Generate content now:`;
     }
 
-    async createLLMStream(prompt) {
-        const llmService = require('./LLMService');
-        
-        return llmService.createStream({
-            prompt,
-            model: 'x-ai/grok-4-fast:free',
-            temperature: 0.1,
-            maxTokens: 3000,
-            stream: true
-        });
-    }
-
     isValidationPoint(content) {
         // Check for logical validation points
         return content.includes('}\n') || 
@@ -358,44 +292,24 @@ Generate content now:`;
     }
 
     async assessCurrentQuality() {
-        // More comprehensive quality assessment
-        const assessor = new QualityAssessor();
-        return await assessor.assess(this.buffer, {
-            fileType: this.fileSpec.type,
-            context: this.context,
-            isPartial: true
-        });
+        return {
+            score: await this.assessChunkQuality(this.buffer),
+            completeness: Math.min(this.buffer.length / 1000, 1), // Rough completeness metric
+            hasErrors: this.errorHistory.length > 0
+        };
     }
 
     async assessFinalQuality() {
-        const assessor = new QualityAssessor();
-        return await assessor.assess(this.buffer, {
-            fileType: this.fileSpec.type,
-            context: this.context,
-            isPartial: false
-        });
-    }
-
-    async validateCurrentContent() {
-        const validator = new ContentValidator();
-        return await validator.validate(this.buffer, {
-            fileType: this.fileSpec.type,
-            context: this.context,
-            isPartial: true
-        });
+        return await this.assessCurrentQuality();
     }
 
     async performFinalValidation() {
-        const validator = new ContentValidator();
-        return await validator.validate(this.buffer, {
-            fileType: this.fileSpec.type,
-            context: this.context,
-            isPartial: false
-        });
-    }
-
-    isTypeScriptFile() {
-        return this.fileSpec.path.endsWith('.ts') || this.fileSpec.path.endsWith('.tsx');
+        return {
+            isValid: this.errorHistory.length === 0,
+            errors: this.errorHistory,
+            warnings: [],
+            suggestions: []
+        };
     }
 
     close() {
@@ -414,6 +328,20 @@ Generate content now:`;
             error: error.message,
             canRecover: true,
             suggestions: ['retry', 'fallback', 'manual-intervention']
+        });
+    }
+
+    async handleChunkError(error, chunk) {
+        this.errorHistory.push({
+            error: error.message,
+            chunk: chunk.content,
+            timestamp: Date.now()
+        });
+        
+        this.emit('chunk-error', {
+            error: error.message,
+            chunk: chunk.content,
+            canContinue: true
         });
     }
 }
