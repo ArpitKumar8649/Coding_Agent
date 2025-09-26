@@ -101,18 +101,6 @@ app.get('/', (req, res) => {
       system: {
         health: 'GET /health'
       },
-      // Enhanced v2 endpoints
-      v2: {
-        health: 'GET /api/v2/health',
-        generate: 'POST /api/v2/generate',
-        edit: 'POST /api/v2/edit',
-        diff: 'POST /api/v2/diff',
-        projects: 'POST/GET/PUT /api/v2/projects',
-        sessions: 'POST/GET /api/v2/sessions',
-        batch: 'POST /api/v2/batch',
-        streaming: 'GET /api/v2/stream/generate/:streamId',
-        cache: 'POST /api/v2/cache/clear'
-      },
       websocket: 'ws://localhost:' + PORT + '/ws'
     },
     integration: {
