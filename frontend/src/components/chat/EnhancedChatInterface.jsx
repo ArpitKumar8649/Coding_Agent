@@ -243,24 +243,39 @@ const EnhancedChatInterface = ({
       )}
 
       {/* Mode & Status Bar - Always visible */}
-      <div className="flex-shrink-0 px-4 py-2 bg-gray-800 border-t border-gray-700">
+      <div className="flex-shrink-0 px-3 sm:px-4 py-2 bg-gray-800 border-t border-gray-700 w-full">
         <div className="flex items-center justify-between text-xs">
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 sm:space-x-4 min-w-0 flex-1">
             {/* Current Mode */}
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-1 sm:space-x-2 min-w-0">
               {currentMode === 'PLAN' ? (
                 <>
-                  <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-                  <span className="text-blue-400 font-medium">Planning Mode</span>
-                  <span className="text-gray-500 hidden sm:inline">- Discuss approach and requirements</span>
+                  <div className="w-2 h-2 bg-blue-400 rounded-full flex-shrink-0"></div>
+                  <span className="text-blue-400 font-medium text-xs">Plan</span>
+                  <span className="text-gray-500 hidden md:inline text-xs truncate">- Discuss approach</span>
                 </>
               ) : (
                 <>
-                  <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                  <span className="text-green-400 font-medium">Action Mode</span>
-                  <span className="text-gray-500 hidden sm:inline">- Ready to build and execute</span>
+                  <div className="w-2 h-2 bg-green-400 rounded-full flex-shrink-0"></div>
+                  <span className="text-green-400 font-medium text-xs">Act</span>
+                  <span className="text-gray-500 hidden md:inline text-xs truncate">- Build and execute</span>
                 </>
               )}
+            </div>
+            
+            {/* Mobile Mode Switch */}
+            <div className="sm:hidden">
+              <button
+                onClick={() => onModeChange(currentMode === 'PLAN' ? 'ACT' : 'PLAN')}
+                className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
+                  currentMode === 'PLAN'
+                    ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                    : 'bg-green-500/20 text-green-400 border border-green-500/30'
+                }`}
+                disabled={isStreaming || !isConnected}
+              >
+                Switch to {currentMode === 'PLAN' ? 'Act' : 'Plan'}
+              </button>
             </div>
           </div>
           
