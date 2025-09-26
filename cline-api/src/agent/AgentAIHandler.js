@@ -181,7 +181,7 @@ PROJECT CONTEXT:
 - Technologies: ${projectContext.technologies.join(', ')}
 
 CRITICAL REQUIREMENTS:
-1. Return ONLY raw code - NO markdown code blocks (```)
+1. Return ONLY raw code - NO markdown code blocks
 2. NO explanations or comments outside the code
 3. Generate complete, functional file content
 4. Include proper imports and exports
