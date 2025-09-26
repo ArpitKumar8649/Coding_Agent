@@ -19,7 +19,7 @@ class DirectWebSocketService {
     const wsUrl = url || process.env.REACT_APP_CLINE_WS_URL || 'ws://localhost:3000/ws';
     return new Promise((resolve, reject) => {
       try {
-        this.ws = new WebSocket(url);
+        this.ws = new WebSocket(wsUrl);
         
         this.ws.onopen = () => {
           console.log('🔌 WebSocket connected to Cline API');
