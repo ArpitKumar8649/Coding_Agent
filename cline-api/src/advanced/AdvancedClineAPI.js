@@ -253,7 +253,7 @@ Please analyze the user's request and execute the appropriate tool to accomplish
 
         try {
             // Generate AI response
-            const aiResponse = await this.llmProvider.generateResponse(executionPrompt, {
+            const aiResponse = await this.llmService.generateResponse(executionPrompt, {
                 temperature: 0.1,
                 maxTokens: 3000
             });
