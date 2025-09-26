@@ -23,8 +23,8 @@ const EnhancedMessageList = ({ messages, isStreaming, currentMode, currentProjec
 
   if (messages.length === 0) {
     return (
-      <div className="flex-1 flex items-center justify-center p-8">
-        <div className="text-center text-gray-400 max-w-md">
+      <div className="flex-1 flex items-center justify-center p-4 sm:p-8 w-full">
+        <div className="text-center text-gray-400 max-w-sm sm:max-w-md mx-auto">
           <div className="w-20 h-20 bg-gradient-to-br from-blue-500/20 to-purple-600/20 rounded-2xl flex items-center justify-center mb-6 mx-auto">
             <Bot className="w-10 h-10 text-gray-400" />
           </div>
