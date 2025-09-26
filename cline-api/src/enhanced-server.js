@@ -18,6 +18,16 @@ const PORT = process.env.PORT || 3001;
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(applyRateLimit());
+app.use(validateRequest);
+
+// Authentication for all routes except health
+app.use((req, res, next) => {
+    if (req.path === '/health') {
+        return next();
+    }
+    return authenticateAPIKey(req, res, next);
+});
 
 // Initialize Advanced Cline API
 const advancedAPI = new AdvancedClineAPI({
