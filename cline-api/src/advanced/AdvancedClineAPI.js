@@ -185,7 +185,7 @@ Please respond appropriately for PLAN mode. Use the plan_mode_respond tool to co
 
         try {
             // Generate AI response
-            const aiResponse = await this.llmProvider.generateResponse(planningPrompt, {
+            const aiResponse = await this.llmService.generateResponse(planningPrompt, {
                 temperature: 0.1,
                 maxTokens: 2000
             });
