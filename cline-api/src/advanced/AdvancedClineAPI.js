@@ -12,7 +12,7 @@ const ValidationEngine = require('./ValidationEngine');
 const StreamingEngine = require('./StreamingEngine');
 const LLMService = require('../services/llmService');
 const mongoService = require('../services/mongoService');
-const workspaceService = require('../services/workspaceService');
+const WorkspaceService = require('../services/workspaceService');
 
 class AdvancedClineAPI {
     constructor(config = {}) {
