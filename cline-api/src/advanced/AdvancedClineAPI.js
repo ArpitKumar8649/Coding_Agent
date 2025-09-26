@@ -10,7 +10,9 @@ const GitAwarenessEngine = require('./GitAwarenessEngine');
 const ContextManager = require('./ContextManager');
 const ValidationEngine = require('./ValidationEngine');
 const StreamingEngine = require('./StreamingEngine');
-const { getLLMProvider } = require('../services/llmService');
+const LLMService = require('../services/llmService');
+const mongoService = require('../services/mongoService');
+const workspaceService = require('../services/workspaceService');
 
 class AdvancedClineAPI {
     constructor(config = {}) {
