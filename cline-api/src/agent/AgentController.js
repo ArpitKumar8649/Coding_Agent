@@ -40,7 +40,7 @@ class AgentController {
         // Initialize services
         await this.workspaceManager.initialize?.();
         await this.fileManager.initialize?.();
-        await this.contextManager.initialize?.();
+        await this.contextManager?.initialize?.();
         
         this.initialized = true;
         console.log('✅ Agent Controller initialized successfully');
