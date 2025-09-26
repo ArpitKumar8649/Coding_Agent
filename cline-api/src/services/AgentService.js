@@ -6,8 +6,7 @@
 const { createAgent } = require('../agent');
 const WorkspaceManager = require('../workspace/WorkspaceManager');
 const AgentFileManager = require('../workspace/AgentFileManager');
-const CacheService = require('./cacheService');
-const ContextService = require('./contextService');
+// Removed cache and context services - using simplified approach
 const StreamingService = require('./streamingService');
 
 class AgentService {
