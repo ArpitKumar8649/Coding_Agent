@@ -128,21 +128,21 @@ const EnhancedChatInterface = ({
           </div>
           
           {/* Header Actions */}
-          <div className="flex items-center space-x-2">
-            {/* Mode Switch - Hidden on mobile when minimized */}
-            {(!isMobile || !isMinimized) && (
+          <div className="flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
+            {/* Mode Switch - Always show on desktop, compact on mobile */}
+            <div className="hidden sm:block">
               <EnhancedModeSwitch 
                 currentMode={currentMode} 
                 onModeChange={onModeChange}
                 disabled={isStreaming || !isConnected}
               />
-            )}
+            </div>
             
             {/* Connection Status - Mobile */}
             {connectionError && (
               <button
                 onClick={onReconnect}
-                className="p-2 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-colors"
+                className="p-1.5 sm:p-2 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-colors"
                 title="Reconnect"
               >
                 <RotateCcw className="w-4 h-4" />
@@ -155,7 +155,7 @@ const EnhancedChatInterface = ({
               {messages.length > 0 && (
                 <button
                   onClick={onClearMessages}
-                  className="p-2 text-gray-400 hover:text-gray-300 hover:bg-gray-700 rounded-lg transition-colors"
+                  className="p-1.5 sm:p-2 text-gray-400 hover:text-gray-300 hover:bg-gray-700 rounded-lg transition-colors"
                   title="Clear messages"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -165,26 +165,11 @@ const EnhancedChatInterface = ({
               {/* Settings */}
               <button
                 onClick={() => setShowSettings(!showSettings)}
-                className="p-2 text-gray-400 hover:text-gray-300 hover:bg-gray-700 rounded-lg transition-colors"
+                className="p-1.5 sm:p-2 text-gray-400 hover:text-gray-300 hover:bg-gray-700 rounded-lg transition-colors"
                 title="Settings"
               >
                 <Settings className="w-4 h-4" />
               </button>
-              
-              {/* Minimize/Maximize - Mobile only */}
-              {isMobile && (
-                <button
-                  onClick={() => setIsMinimized(!isMinimized)}
-                  className="p-2 text-gray-400 hover:text-gray-300 hover:bg-gray-700 rounded-lg transition-colors"
-                  title={isMinimized ? 'Maximize' : 'Minimize'}
-                >
-                  {isMinimized ? (
-                    <Maximize2 className="w-4 h-4" />
-                  ) : (
-                    <Minimize2 className="w-4 h-4" />
-                  )}
-                </button>
-              )}
             </div>
           </div>
         </div>
