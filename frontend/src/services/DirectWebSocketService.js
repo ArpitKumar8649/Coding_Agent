@@ -15,7 +15,8 @@ class DirectWebSocketService {
     this.messageQueue = [];
   }
 
-  connect(url = 'ws://localhost:3000/ws') {
+  connect(url = null) {
+    const wsUrl = url || process.env.REACT_APP_CLINE_WS_URL || 'ws://localhost:3000/ws';
     return new Promise((resolve, reject) => {
       try {
         this.ws = new WebSocket(url);
