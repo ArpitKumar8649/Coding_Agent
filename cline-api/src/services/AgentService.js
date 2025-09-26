@@ -147,7 +147,7 @@ class AgentService {
                 const agentController = createAgent({
                     workspaceManager,
                     fileManager,
-                    contextManager: this.contextService,
+                    contextManager: null, // Simplified for API use
                     streamingService: streaming ? this.streamingService : null,
                     apiConfiguration: this.getApiConfiguration()
                 });
