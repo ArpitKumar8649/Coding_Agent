@@ -3,10 +3,14 @@
  * Includes sophisticated system prompts, Plan vs Act modes, advanced tools, and git awareness
  */
 
+require('dotenv').config({ path: '.env.advanced' });
+
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const AdvancedClineAPI = require('./advanced/AdvancedClineAPI');
+const { authenticateAPIKey, applyRateLimit, validateRequest } = require('./middleware/advancedAuth');
+const mongoService = require('./services/mongoService');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
