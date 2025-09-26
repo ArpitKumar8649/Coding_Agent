@@ -1,189 +1,80 @@
 import React, { useState, useEffect } from 'react';
 import ChatInterface from './components/chat/ChatInterface';
+import useClineChat from './hooks/useClineChat';
 import './App.css';
 
-// Mock data for demonstration
-const mockMessages = [
-  {
-    id: 1,
-    type: 'user',
-    content: 'Create a React component for a todo list with add, delete, and toggle functionality',
-    timestamp: Date.now() - 60000,
-  },
-  {
-    id: 2,
-    type: 'assistant',
-    content: `I'll create a comprehensive todo list component for you. Let me break this down into the main component and helper functions.
+function App() {
+  const {
+    messages,
+    isConnected,
+    isStreaming,
+    currentMode,
+    agentStatus,
+    sessionId,
+    connectionError,
+    sendMessage,
+    switchMode,
+    reconnect,
+    clearMessages,
+    getConnectionStatus
+  } = useClineChat('ACT');
 
-**TodoList.jsx**
+  const [showConnectionStatus, setShowConnectionStatus] = useState(false);
 
-\`\`\`jsx
-import React, { useState } from 'react';
+  // Show connection status on mount
+  useEffect(() => {
+    setShowConnectionStatus(true);
+    const timer = setTimeout(() => setShowConnectionStatus(false), 3000);
+    return () => clearTimeout(timer);
+  }, [isConnected]);
 
-const TodoList = () => {
-  const [todos, setTodos] = useState([]);
-  const [inputValue, setInputValue] = useState('');
-
-  const addTodo = () => {
-    if (inputValue.trim()) {
-      setTodos([...todos, {
-        id: Date.now(),
-        text: inputValue.trim(),
-        completed: false
-      }]);
-      setInputValue('');
+  const handleSendMessage = (message) => {
+    const success = sendMessage(message);
+    if (!success) {
+      console.error('Failed to send message');
+      // Could show user notification here
     }
   };
 
-  const deleteTodo = (id) => {
-    setTodos(todos.filter(todo => todo.id !== id));
-  };
-
-  const toggleTodo = (id) => {
-    setTodos(todos.map(todo =>
-      todo.id === id ? { ...todo, completed: !todo.completed } : todo
-    ));
-  };
-
-  return (
-    <div className="todo-container">
-      <h2>Todo List</h2>
-      <div className="todo-input">
-        <input
-          type="text"
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          onKeyPress={(e) => e.key === 'Enter' && addTodo()}
-          placeholder="Add a new todo..."
-        />
-        <button onClick={addTodo}>Add</button>
-      </div>
-      <ul className="todo-list">
-        {todos.map(todo => (
-          <li key={todo.id} className={todo.completed ? 'completed' : ''}>
-            <input
-              type="checkbox"
-              checked={todo.completed}
-              onChange={() => toggleTodo(todo.id)}
-            />
-            <span>{todo.text}</span>
-            <button onClick={() => deleteTodo(todo.id)}>Delete</button>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-};
-
-export default TodoList;
-\`\`\`
-
-The component includes:
-- **State management** for todos and input
-- **Add functionality** with Enter key support
-- **Delete functionality** for removing todos
-- **Toggle functionality** for marking complete/incomplete
-- **Clean, reusable structure**
-
-Would you like me to add any additional features like edit functionality, local storage persistence, or filtering options?`,
-    timestamp: Date.now() - 30000,
-    mode: 'ACT'
-  },
-  {
-    id: 3,
-    type: 'tool_execution',
-    toolName: 'write_to_file',
-    parameters: {
-      path: '/src/components/TodoList.jsx',
-      content: 'import React, { useState } from \'react\';\n\nconst TodoList = () => {\n  // Component implementation...\n};'
-    },
-    result: {
-      success: true,
-      path: '/src/components/TodoList.jsx',
-      size: 1024,
-      lines: 45
-    },
-    status: 'completed',
-    timestamp: Date.now() - 25000,
-  },
-  {
-    id: 4,
-    type: 'system',
-    content: 'File created successfully: TodoList.jsx',
-    timestamp: Date.now() - 20000,
-    variant: 'success'
-  }
-];
-
-function App() {
-  const [messages, setMessages] = useState(mockMessages);
-  const [isStreaming, setIsStreaming] = useState(false);
-  const [currentMode, setCurrentMode] = useState('ACT');
-  const [agentStatus, setAgentStatus] = useState('idle');
-
-  const handleSendMessage = (message) => {
-    // Add user message
-    const userMessage = {
-      id: Date.now(),
-      type: 'user',
-      content: message,
-      timestamp: Date.now(),
-    };
-
-    setMessages(prev => [...prev, userMessage]);
-    setAgentStatus('thinking');
-    setIsStreaming(true);
-
-    // Simulate agent response
-    setTimeout(() => {
-      const assistantMessage = {
-        id: Date.now() + 1,
-        type: 'assistant',
-        content: `I understand you want me to: "${message}". Let me help you with that!
-
-This is a **demonstration** of the chat interface with:
-- **Syntax highlighting** for code blocks
-- **Real-time streaming** simulation
-- **Tool execution** indicators
-- **Dark theme** styling
-
-\`\`\`javascript
-// Example code with syntax highlighting
-const handleResponse = (message) => {
-  console.log('Processing:', message);
-  return { success: true };
-};
-\`\`\`
-
-The interface supports Plan and Act modes, streaming responses, and beautiful formatting!`,
-        timestamp: Date.now(),
-        mode: currentMode
-      };
-
-      setMessages(prev => [...prev, assistantMessage]);
-      setIsStreaming(false);
-      setAgentStatus('idle');
-    }, 2000);
-  };
-
   const handleModeChange = (mode) => {
-    setCurrentMode(mode);
-    
-    // Add system message for mode change
-    const systemMessage = {
-      id: Date.now(),
-      type: 'system',
-      content: `Switched to ${mode} mode`,
-      timestamp: Date.now(),
-      variant: 'mode'
-    };
-    
-    setMessages(prev => [...prev, systemMessage]);
+    switchMode(mode);
   };
 
   return (
     <div className="App">
-      <div className="h-screen bg-gray-900">
+      {/* Connection Status Banner */}
+      {(showConnectionStatus || connectionError) && (
+        <div className={`fixed top-0 left-0 right-0 z-50 p-3 text-center text-sm font-medium transition-all duration-300 ${
+          connectionError 
+            ? 'bg-red-600 text-white' 
+            : isConnected 
+              ? 'bg-green-600 text-white' 
+              : 'bg-yellow-600 text-white'
+        }`}>
+          {connectionError ? (
+            <span>
+              ❌ Connection Error: {connectionError} 
+              <button 
+                onClick={reconnect}
+                className="ml-2 px-2 py-1 bg-white/20 rounded hover:bg-white/30 transition-colors"
+              >
+                Retry
+              </button>
+            </span>
+          ) : isConnected ? (
+            <span>
+              ✅ Connected to Cline API {sessionId && `(Session: ${sessionId.substring(0, 8)}...)`}
+            </span>
+          ) : (
+            <span>🔄 Connecting to Cline API...</span>
+          )}
+        </div>
+      )}
+
+      {/* Main Chat Interface */}
+      <div className={`h-screen bg-gray-900 transition-all duration-300 ${
+        (showConnectionStatus || connectionError) ? 'pt-12' : ''
+      }`}>
         <ChatInterface
           messages={messages}
           onSendMessage={handleSendMessage}
@@ -191,8 +82,36 @@ The interface supports Plan and Act modes, streaming responses, and beautiful fo
           currentMode={currentMode}
           onModeChange={handleModeChange}
           agentStatus={agentStatus}
+          isConnected={isConnected}
+          sessionId={sessionId}
         />
       </div>
+
+      {/* Debug Panel (Development only) */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="fixed bottom-4 right-4 p-3 bg-gray-800 text-gray-300 text-xs rounded-lg border border-gray-600 max-w-xs">
+          <div className="font-semibold mb-1">Debug Info</div>
+          <div>Connected: {isConnected ? '✅' : '❌'}</div>
+          <div>Session: {sessionId?.substring(0, 8) || 'None'}</div>
+          <div>Mode: {currentMode}</div>
+          <div>Agent: {agentStatus}</div>
+          <div>Messages: {messages.length}</div>
+          <div className="mt-2 space-x-1">
+            <button 
+              onClick={clearMessages}
+              className="px-2 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-xs"
+            >
+              Clear
+            </button>
+            <button 
+              onClick={() => console.log(getConnectionStatus())}
+              className="px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs"
+            >
+              Status
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
