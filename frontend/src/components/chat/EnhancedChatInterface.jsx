@@ -84,9 +84,7 @@ const EnhancedChatInterface = ({
   const isTablet = window.innerWidth >= 768 && window.innerWidth < 1024;
 
   return (
-    <div className={`flex flex-col h-full bg-gray-900 ${
-      isMinimized ? 'h-16' : 'h-full'
-    } transition-all duration-300`}>
+    <div className="flex flex-col h-screen w-full bg-gray-900 overflow-hidden">
       
       {/* Header */}
       <div className="flex-shrink-0">
