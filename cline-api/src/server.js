@@ -9,8 +9,7 @@ const { errorHandler, notFound } = require('./middleware/error');
 const { authenticate } = require('./middleware/auth');
 const { rateLimiter } = require('./middleware/rateLimit');
 
-// Enhanced services
-const EnhancedApiService = require('./services/enhancedApiService');
+// Services
 const StreamingService = require('./services/streamingService');
 
 const app = express();
