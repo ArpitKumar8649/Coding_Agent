@@ -85,7 +85,6 @@ streamingService.on('stream_request', async ({ streamId, connectionId, type, req
 });
 
 // API routes
-app.use('/api', codeRoutes);
 app.use('/api/v2', enhancedRoutes);
 app.use('/api/agent', agentRoutes);
 
