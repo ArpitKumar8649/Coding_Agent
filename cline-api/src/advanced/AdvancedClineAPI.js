@@ -32,8 +32,8 @@ class AdvancedClineAPI {
             ...this.config
         });
         
-        this.llmProvider = getLLMProvider(this.config.llmProvider);
-        this.planActManager = new PlanActModeManager(this.llmProvider);
+        this.llmService = new LLMService();
+        this.planActManager = new PlanActModeManager(this.llmService);
         
         this.toolExecutor = new AdvancedToolExecutor({
             workingDirectory: this.config.workspaceDir,
@@ -42,6 +42,7 @@ class AdvancedClineAPI {
         
         this.contextManager = new ContextManager();
         this.validationEngine = new ValidationEngine();
+        this.workspaceService = workspaceService;
         
         if (this.config.enableStreaming) {
             this.streamingEngine = new StreamingEngine();
