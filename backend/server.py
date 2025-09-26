@@ -18,8 +18,8 @@ import uvicorn
 from pydantic import BaseModel
 
 # Configuration
-CLINE_API_URL = os.getenv('CLINE_API_URL', 'http://localhost:3000')
-ENHANCED_CLINE_API_URL = os.getenv('ENHANCED_CLINE_API_URL', 'http://localhost:3001')
+CLINE_API_URL = os.getenv('CLINE_API_URL', 'http://localhost:3002')
+ENHANCED_CLINE_API_URL = os.getenv('ENHANCED_CLINE_API_URL', 'http://localhost:3003')
 
 app = FastAPI(
     title="Cline Chat Backend",
