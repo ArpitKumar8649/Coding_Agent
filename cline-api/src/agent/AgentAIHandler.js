@@ -26,7 +26,7 @@ CORE PRINCIPLES:
 - Think step-by-step and work methodically
 
 IMPORTANT CODE GENERATION RULES:
-- NEVER wrap code in markdown code blocks (```)
+- NEVER wrap code in markdown code blocks
 - Generate raw code content directly
 - Include proper imports and exports
 - Follow the target framework's conventions
