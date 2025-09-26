@@ -4,8 +4,8 @@
  */
 
 class DirectClineAPIService {
-  constructor(baseURL = 'http://localhost:3000', apiKey = null) {
-    this.baseURL = baseURL;
+  constructor(baseURL = null, apiKey = null) {
+    this.baseURL = baseURL || process.env.REACT_APP_CLINE_API_URL || 'http://localhost:3000';
     this.apiKey = apiKey || process.env.REACT_APP_CLINE_API_KEY || 'development-key';
   }
 
