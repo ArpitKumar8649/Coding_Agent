@@ -193,54 +193,52 @@ const EnhancedChatInterface = ({
         )}
       </div>
 
-      {/* Chat Content - Hidden when minimized on mobile */}
-      {(!isMobile || !isMinimized) && (
-        <>
-          {/* Messages Container */}
-          <div 
-            ref={chatContainerRef}
-            className="flex-1 min-h-0 relative"
-          >
-            <EnhancedMessageList 
-              messages={messages}
-              isStreaming={isStreaming}
-              currentMode={currentMode}
-              currentProject={currentProject}
-            />
-            
-            {/* Overlay for disconnected state */}
-            {!isConnected && !connectionError && (
-              <div className="absolute inset-0 bg-gray-900/80 flex items-center justify-center">
-                <div className="text-center">
-                  <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                  <p className="text-gray-300 mb-2">Connecting to Cline API...</p>
-                  <p className="text-gray-500 text-sm">Please wait while we establish connection</p>
-                </div>
+      {/* Chat Content */}
+      <>
+        {/* Messages Container */}
+        <div 
+          ref={chatContainerRef}
+          className="flex-1 min-h-0 relative w-full"
+        >
+          <EnhancedMessageList 
+            messages={messages}
+            isStreaming={isStreaming}
+            currentMode={currentMode}
+            currentProject={currentProject}
+          />
+          
+          {/* Overlay for disconnected state */}
+          {!isConnected && !connectionError && (
+            <div className="absolute inset-0 bg-gray-900/80 flex items-center justify-center p-4">
+              <div className="text-center max-w-sm mx-auto">
+                <div className="w-8 h-8 sm:w-12 sm:h-12 border-3 sm:border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-3 sm:mb-4"></div>
+                <p className="text-gray-300 mb-2 text-sm sm:text-base">Connecting to Cline API...</p>
+                <p className="text-gray-500 text-xs sm:text-sm">Please wait while we establish connection</p>
               </div>
-            )}
-          </div>
+            </div>
+          )}
+        </div>
 
-          {/* Input Area */}
-          <div className="flex-shrink-0">
-            <EnhancedMessageInput
-              value={input}
-              onChange={setInput}
-              onSend={handleSendMessage}
-              disabled={!isConnected}
-              isStreaming={isStreaming}
-              currentMode={currentMode}
-              onCancel={handleCancelGeneration}
-              placeholder={
-                !isConnected 
-                  ? "Connecting to Cline API..."
-                  : currentMode === 'PLAN' 
-                    ? "Describe your project or ask questions about the approach..."
-                    : "Tell me what you want me to build..."
-              }
-            />
-          </div>
-        </>
-      )}
+        {/* Input Area */}
+        <div className="flex-shrink-0 w-full">
+          <EnhancedMessageInput
+            value={input}
+            onChange={setInput}
+            onSend={handleSendMessage}
+            disabled={!isConnected}
+            isStreaming={isStreaming}
+            currentMode={currentMode}
+            onCancel={handleCancelGeneration}
+            placeholder={
+              !isConnected 
+                ? "Connecting to Cline API..."
+                : currentMode === 'PLAN' 
+                  ? "Describe your project or ask questions..."
+                  : "Tell me what you want me to build..."
+            }
+          />
+        </div>
+      </>
 
       {/* Mode & Status Bar - Always visible */}
       <div className="flex-shrink-0 px-3 sm:px-4 py-2 bg-gray-800 border-t border-gray-700 w-full">
