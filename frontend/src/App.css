@@ -341,6 +341,15 @@ body {
 
 /* Mobile optimizations */
 @media (max-width: 640px) {
+  /* Ensure full viewport usage */
+  html, body, #root, .App {
+    width: 100vw !important;
+    height: 100vh !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-x: hidden;
+  }
+  
   /* Reduce padding on mobile */
   .mobile-padding {
     padding: 0.75rem;
@@ -361,6 +370,16 @@ body {
   .mobile-touch {
     min-height: 44px;
     min-width: 44px;
+  }
+  
+  /* Fix text alignment issues on mobile */
+  .text-left-mobile {
+    text-align: left !important;
+  }
+  
+  /* Ensure proper container widths */
+  .w-full-mobile {
+    width: 100% !important;
   }
 }
 
