@@ -92,18 +92,44 @@
     
     <!-- Remove loading screen when React loads -->
     <script>
+      function hideLoadingScreen() {
+        document.body.classList.add('react-loaded');
+        console.log('Loading screen hidden - React app loaded');
+      }
+
       window.addEventListener('DOMContentLoaded', () => {
-        // Add a small delay to show the loading screen
-        setTimeout(() => {
-          const root = document.getElementById('root');
-          const observer = new MutationObserver((mutations) => {
-            if (root.children.length > 0) {
-              document.body.classList.add('react-loaded');
+        const root = document.getElementById('root');
+        
+        // Check if React content is already there
+        if (root && root.children.length > 0) {
+          hideLoadingScreen();
+          return;
+        }
+        
+        // Set up observer to watch for React content
+        const observer = new MutationObserver((mutations) => {
+          if (root && root.children.length > 0) {
+            // Double check if there's actual React content
+            const hasReactContent = root.querySelector('div') || root.textContent.trim();
+            if (hasReactContent) {
+              hideLoadingScreen();
               observer.disconnect();
             }
-          });
+          }
+        });
+        
+        if (root) {
           observer.observe(root, { childList: true, subtree: true });
-        }, 500);
+        }
+        
+        // Fallback: Hide loading screen after 5 seconds regardless
+        setTimeout(() => {
+          console.log('Fallback: Hiding loading screen after timeout');
+          hideLoadingScreen();
+        }, 5000);
+        
+        // Also listen for React's ready event if available
+        window.addEventListener('react-app-loaded', hideLoadingScreen);
       });
     </script>
   </body>
