@@ -117,12 +117,9 @@ app.get('/', (req, res) => {
         stats: 'GET /api/agent/stats',
         health: 'GET /api/agent/health'
       },
-      // Legacy v1 endpoints
-      v1: {
-        health: 'GET /health',
-        generate: 'POST /api/generate',
-        edit: 'POST /api/edit',
-        diff: 'POST /api/diff'
+      // System endpoints
+      system: {
+        health: 'GET /health'
       },
       // Enhanced v2 endpoints
       v2: {
