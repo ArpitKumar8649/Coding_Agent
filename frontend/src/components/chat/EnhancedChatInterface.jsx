@@ -87,8 +87,8 @@ const EnhancedChatInterface = ({
     <div className="flex flex-col h-screen w-full bg-gray-900 overflow-hidden">
       
       {/* Header */}
-      <div className="flex-shrink-0">
-        <div className="flex items-center justify-between p-4 border-b border-gray-700 bg-gray-800">
+      <div className="flex-shrink-0 w-full">
+        <div className="flex items-center justify-between p-3 sm:p-4 border-b border-gray-700 bg-gray-800">
           <div className="flex items-center space-x-3 min-w-0">
             {/* Agent Avatar */}
             <div className="relative flex-shrink-0">
