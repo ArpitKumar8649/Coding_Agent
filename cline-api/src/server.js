@@ -131,7 +131,7 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log(`🤖 Default LLM Provider: ${process.env.DEFAULT_LLM_PROVIDER || 'anthropic'}`);
   console.log(`📡 Health check: http://localhost:${PORT}/health`);
   console.log(`🔌 WebSocket server: ws://localhost:${PORT}/ws`);
-  console.log(`📡 Enhanced API v2: http://localhost:${PORT}/api/v2`);
+  console.log(`🤖 Agent API: http://localhost:${PORT}/api/agent`);
   console.log(`🎯 Features: Caching ✅ Context ✅ Streaming ✅ Sessions ✅`);
 });
 
