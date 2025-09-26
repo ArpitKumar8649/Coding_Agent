@@ -1,6 +1,6 @@
 /**
  * Chat-Enabled Cline API Server - Frontend Integration
- * Integrates with existing advanced Cline capabilities + WebSocket chat support
+ * Integrates with existing Cline capabilities + WebSocket chat support
  */
 
 const express = require('express');
@@ -8,12 +8,6 @@ const http = require('http');
 const WebSocket = require('ws');
 const cors = require('cors');
 const path = require('path');
-
-// Import existing advanced components
-const AdvancedClineAPI = require('./advanced/AdvancedClineAPI');
-const InteractiveAgentAPI = require('./advanced/InteractiveAgentAPI');
-const PlanActModeManager = require('./advanced/PlanActModeManager');
-const StreamingEngine = require('./advanced/StreamingEngine');
 
 const app = express();
 const server = http.createServer(app);
