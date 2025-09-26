@@ -389,35 +389,9 @@ async def start_cline_services():
     import subprocess
     import os
     
-    # Start enhanced Cline API server
-    try:
-        cline_api_dir = "/app/cline-api"
-        if os.path.exists(cline_api_dir):
-            print("🚀 Starting Enhanced Cline API server...")
-            subprocess.Popen(
-                ["node", "src/enhanced-server.js"],
-                cwd=cline_api_dir,
-                env=dict(os.environ, PORT="3001")
-            )
-            print("✅ Enhanced Cline API started on port 3001")
-            
-    except Exception as e:
-        print(f"Failed to start Enhanced Cline API: {e}")
-    
-    # Start basic Cline API server
-    try:
-        cline_api_dir = "/app/cline-api"
-        if os.path.exists(cline_api_dir):
-            print("🚀 Starting Basic Cline API server...")
-            subprocess.Popen(
-                ["node", "src/server.js"], 
-                cwd=cline_api_dir,
-                env=dict(os.environ, PORT="3000")
-            )
-            print("✅ Basic Cline API started on port 3000")
-            
-    except Exception as e:
-        print(f"Failed to start Basic Cline API: {e}")
+    print("🔄 Cline API services will be started separately...")
+    print("📝 Frontend connects to this backend (port 8001)")
+    print("🤖 Cline APIs should run on ports 3002-3003 to avoid conflicts")
 
 @app.on_event("startup")
 async def startup_event():
