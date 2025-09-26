@@ -47,30 +47,17 @@ app.get('/health', (req, res) => {
 console.log('🚀 Initializing services...');
 const streamingService = new StreamingService(server);
 
-// Handle streaming requests
+// Handle streaming requests for agent operations
 streamingService.on('stream_request', async ({ streamId, connectionId, type, request, callback }) => {
   try {
     console.log(`📡 Processing stream request: ${type} (${streamId})`);
     
-    let result;
-    switch (type) {
-      case 'generate':
-        result = await enhancedApiService.generateCodeEnhanced({
-          ...request,
-          streamId
-        });
-        break;
-      case 'edit':
-        result = await enhancedApiService.editCodeEnhanced({
-          ...request,
-          streamId
-        });
-        break;
-      default:
-        throw new Error(`Unsupported stream type: ${type}`);
-    }
+    // For now, streaming is handled directly by agent operations
+    // Future: Add agent streaming support here
     
-    streamingService.completeStream(streamId, result);
+    streamingService.completeStream(streamId, { 
+      message: 'Agent operations handle streaming internally' 
+    });
     
   } catch (error) {
     console.error(`Stream processing error (${streamId}):`, error);
