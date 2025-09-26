@@ -397,10 +397,9 @@ async def start_cline_services():
 async def startup_event():
     """Startup event to initialize services"""
     print("🔄 Initializing Cline Chat Backend...")
-    
-    # Start Cline API services
-    await start_cline_services()
-    
+    print("🌐 Backend running on port 8001")
+    print("📱 Frontend should connect to http://localhost:8001")
+    print("🔌 WebSocket available at ws://localhost:8001/ws")
     print("✅ Cline Chat Backend ready")
 
 if __name__ == "__main__":
