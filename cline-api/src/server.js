@@ -4,7 +4,6 @@ const helmet = require('helmet');
 const http = require('http');
 require('dotenv').config();
 
-const enhancedRoutes = require('./routes/enhanced');
 const agentRoutes = require('./routes/agent');
 const { errorHandler, notFound } = require('./middleware/error');
 const { authenticate } = require('./middleware/auth');
