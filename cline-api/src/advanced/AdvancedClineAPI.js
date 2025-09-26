@@ -63,17 +63,27 @@ class AdvancedClineAPI {
     async createSession(sessionConfig = {}) {
         const sessionId = Date.now().toString() + Math.random().toString(36).substr(2, 9);
         
+        // Connect to MongoDB
+        await mongoService.connect();
+        
+        // Create workspace
+        const workspacePath = await this.workspaceService.createSessionWorkspace(sessionId);
+        
         const session = {
-            id: sessionId,
+            sessionId,
             created: new Date().toISOString(),
             config: { ...this.config, ...sessionConfig },
             mode: sessionConfig.startMode || 'PLAN',
+            workspace: workspacePath,
             context: {},
             conversationHistory: [],
             currentTask: null,
             executionPlan: null,
             gitState: null
         };
+        
+        // Save to database
+        await mongoService.createSession(session);
         
         // Initialize git state if enabled
         if (this.config.enableGit && this.gitEngine) {
@@ -97,7 +107,7 @@ class AdvancedClineAPI {
             sessionId,
             mode: session.mode,
             capabilities: this.getSessionCapabilities(session),
-            workspace: this.config.workspaceDir,
+            workspace: workspacePath,
             gitEnabled: this.config.enableGit,
             qualityLevel: this.config.qualityLevel
         };
