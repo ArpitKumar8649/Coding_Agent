@@ -54,9 +54,9 @@ function App() {
   };
 
   return (
-    <div className="App min-h-screen bg-gray-900">
+    <div className="App h-screen w-screen bg-gray-900 overflow-hidden">
       {/* Main Chat Interface */}
-      <div className="h-screen flex flex-col">
+      <div className="h-full w-full flex flex-col">
         <EnhancedChatInterface
           messages={messages}
           onSendMessage={handleSendMessage}
