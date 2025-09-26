@@ -42,7 +42,7 @@ class AdvancedClineAPI {
         
         this.contextManager = new ContextManager();
         this.validationEngine = new ValidationEngine();
-        this.workspaceService = workspaceService;
+        this.workspaceService = new WorkspaceService();
         
         if (this.config.enableStreaming) {
             this.streamingEngine = new StreamingEngine();
