@@ -317,31 +317,4 @@ app.use((error, req, res, next) => {
     });
 });
 
-// Start server
-app.listen(PORT, () => {
-    console.log(`
-🚀 Enhanced Cline API Server running on port ${PORT}
-
-📊 Advanced Features Enabled:
-  • Sophisticated System Prompts (6000+ lines)
-  • Plan vs Act Mode System  
-  • Advanced Tool Orchestration
-  • Git Awareness & Auto-commit
-  • Quality-Enhanced Code Generation
-  • Real-time Streaming & Validation
-  • Iterative Refinement Loops
-
-🔗 API Endpoints:
-  • POST /api/sessions - Create new advanced session
-  • POST /api/sessions/:id/messages - Process message with enhanced capabilities
-  • POST /api/sessions/:id/mode - Switch between PLAN and ACT modes
-  • GET /api/capabilities - View advanced capabilities
-  • POST /api/test/quality - Test quality-enhanced generation
-
-🎯 Quality Levels: poor, medium, advanced
-🔄 Modes: PLAN (planning & discussion) | ACT (implementation)
-📋 Git: ${process.env.ENABLE_GIT !== 'false' ? 'Enabled' : 'Disabled'}
-`);
-});
-
 module.exports = app;
