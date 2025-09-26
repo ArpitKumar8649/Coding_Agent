@@ -43,13 +43,9 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Initialize enhanced services
-console.log('🚀 Initializing enhanced services...');
+// Initialize services
+console.log('🚀 Initializing services...');
 const streamingService = new StreamingService(server);
-const enhancedApiService = new EnhancedApiService(streamingService);
-
-// Make enhanced service available to routes
-app.set('enhancedApiService', enhancedApiService);
 
 // Handle streaming requests
 streamingService.on('stream_request', async ({ streamId, connectionId, type, request, callback }) => {
