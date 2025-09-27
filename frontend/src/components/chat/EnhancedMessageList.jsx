@@ -142,7 +142,8 @@ const EnhancedMessageList = ({ messages, isStreaming, currentMode, currentProjec
                 </div>
               );
           }
-        })}n        
+        })}
+        
         {/* Invisible element for scrolling */}
         <div ref={messagesEndRef} className="h-1" />
       </div>
