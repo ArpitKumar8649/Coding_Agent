@@ -20,16 +20,31 @@ class AgentService {
         // Active agents by workspace
         this.agents = new Map();
         
+        // Advanced components
+        this.systemPromptEngine = new SystemPromptEngine({
+            currentWorkingDirectory: this.defaultWorkspace,
+            supportsBrowserUse: false,
+            mcpEnabled: false
+        });
+        
+        this.streamingEngine = new StreamingEngine();
+        this.llmService = new LLMService();
+        
+        // Active streaming sessions
+        this.activeStreams = new Map();
+        
         // Service statistics
         this.stats = {
             totalProjects: 0,
             completedProjects: 0,
             failedProjects: 0,
             totalFiles: 0,
+            advancedGenerations: 0,
+            streamingSessions: 0,
             startTime: new Date()
         };
         
-        console.log('🤖 Agent Service initialized');
+        console.log('🤖 Agent Service initialized with Advanced Features');
     }
 
     /**
