@@ -22,12 +22,22 @@ class DirectWebSocketService {
     console.log(`🔌 Attempting WebSocket connection to: ${wsUrl}`);
     
     return new Promise((resolve, reject) => {
+      // Set connection timeout
+      const connectionTimeout = setTimeout(() => {
+        console.warn('⚠️ WebSocket connection timeout, enabling HTTP fallback mode');
+        this.httpFallbackMode = true;
+        this.emit('connected'); // Emit connected for HTTP fallback
+        resolve();
+      }, this.connectionTimeout);
+
       try {
         this.ws = new WebSocket(wsUrl);
         
         this.ws.onopen = () => {
+          clearTimeout(connectionTimeout);
           console.log('✅ WebSocket connected to Cline API');
           this.isConnected = true;
+          this.httpFallbackMode = false;
           this.reconnectAttempts = 0;
           this.emit('connected');
           
