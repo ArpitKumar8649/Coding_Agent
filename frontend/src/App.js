@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import EnhancedChatInterface from './components/chat/EnhancedChatInterface';
-import useDirectClineChat from './hooks/useDirectClineChat';
+import AdvancedChatInterface from './components/chat/AdvancedChatInterface';
+import useAdvancedClineChat from './hooks/useAdvancedClineChat';
 import './App.css';
 
 function App() {
@@ -12,12 +12,17 @@ function App() {
     agentStatus,
     currentProject,
     connectionError,
+    streamingFeatures,
+    stats,
     sendMessage,
     switchMode,
-    cancelCurrentProject,
+    uploadFile,
+    joinCollaboration,
+    cancelCurrentStream,
     reconnect,
-    clearMessages
-  } = useDirectClineChat();
+    clearMessages,
+    getPerformanceStats
+  } = useAdvancedClineChat();
 
   const [showConnectionStatus, setShowConnectionStatus] = useState(false);
 
