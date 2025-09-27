@@ -17,12 +17,14 @@ class DirectWebSocketService {
 
   connect(url = null) {
     const wsUrl = url || process.env.REACT_APP_CLINE_WS_URL || 'ws://localhost:3000/ws';
+    console.log(`🔌 Attempting WebSocket connection to: ${wsUrl}`);
+    
     return new Promise((resolve, reject) => {
       try {
         this.ws = new WebSocket(wsUrl);
         
         this.ws.onopen = () => {
-          console.log('🔌 WebSocket connected to Cline API');
+          console.log('✅ WebSocket connected to Cline API');
           this.isConnected = true;
           this.reconnectAttempts = 0;
           this.emit('connected');
@@ -46,25 +48,40 @@ class DirectWebSocketService {
         };
 
         this.ws.onclose = (event) => {
-          console.log('🔌 WebSocket connection closed:', event.code);
+          console.log(`❌ WebSocket connection closed: ${event.code} - ${event.reason || 'No reason'}`);
           this.isConnected = false;
-          this.emit('disconnected', event);
+          this.emit('disconnected', { 
+            code: event.code, 
+            reason: event.reason,
+            wasClean: event.wasClean,
+            url: wsUrl
+          });
           
           // Auto-reconnect if not a manual close
           if (event.code !== 1000 && this.reconnectAttempts < this.maxReconnectAttempts) {
+            console.log(`🔄 Scheduling reconnect attempt ${this.reconnectAttempts + 1}/${this.maxReconnectAttempts}`);
             setTimeout(() => {
               this.reconnect();
             }, this.reconnectDelay * Math.pow(2, this.reconnectAttempts));
+          } else if (this.reconnectAttempts >= this.maxReconnectAttempts) {
+            console.error('❌ Max reconnection attempts reached');
+            this.emit('error', new Error(`Failed to connect to WebSocket after ${this.maxReconnectAttempts} attempts. URL: ${wsUrl}`));
           }
         };
 
         this.ws.onerror = (error) => {
-          console.error('WebSocket error:', error);
-          this.emit('error', error);
+          console.error('❌ WebSocket error:', error);
+          console.error(`WebSocket URL: ${wsUrl}`);
+          this.emit('error', { 
+            error, 
+            url: wsUrl,
+            message: `WebSocket connection failed to ${wsUrl}. This could be due to: 1) WebSocket not supported on server 2) CORS issues 3) Network connectivity` 
+          });
           reject(error);
         };
 
       } catch (error) {
+        console.error('❌ Failed to create WebSocket:', error);
         reject(error);
       }
     });
