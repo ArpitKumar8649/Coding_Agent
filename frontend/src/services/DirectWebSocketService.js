@@ -80,14 +80,12 @@ class DirectWebSocketService {
         };
 
         this.ws.onerror = (error) => {
+          clearTimeout(connectionTimeout);
           console.error('❌ WebSocket error:', error);
-          console.error(`WebSocket URL: ${wsUrl}`);
-          this.emit('error', { 
-            error, 
-            url: wsUrl,
-            message: `WebSocket connection failed to ${wsUrl}. This could be due to: 1) WebSocket not supported on server 2) CORS issues 3) Network connectivity` 
-          });
-          reject(error);
+          console.log('🔄 WebSocket failed, enabling HTTP fallback mode');
+          this.httpFallbackMode = true;
+          this.emit('connected'); // Emit connected for HTTP fallback
+          resolve(); // Don't reject, use HTTP fallback instead
         };
 
       } catch (error) {
