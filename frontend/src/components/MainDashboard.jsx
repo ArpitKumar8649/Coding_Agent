@@ -56,6 +56,9 @@ const MainDashboard = () => {
 
   const renderContent = () => {
     switch (activeTab) {
+      case 'workspace':
+        return <CodeWorkspace apiService={apiService} />;
+      
       case 'projects':
         return (
           <ProjectDashboard 
