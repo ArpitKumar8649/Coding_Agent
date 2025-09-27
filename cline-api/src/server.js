@@ -119,10 +119,14 @@ app.use('/api/agent', agentRoutes);
 // Root endpoint
 app.get('/', (req, res) => {
   res.json({
-    message: 'Cline API Service - Agent Edition',
-    version: '3.0.0',
+    message: 'Cline API Service - Enhanced Advanced Edition',
+    version: '3.1.0',
     features: [
       '🤖 Autonomous Coding Agent',
+      '🧠 Advanced System Prompts',
+      '🌊 Real-time Streaming Generation',
+      '📁 Bulk File Generation',
+      '⚡ Quality-Level Code Generation',
       '📋 Multi-Step Project Planning', 
       '📁 Complete File Management',
       '🎯 Response Caching',
@@ -133,10 +137,14 @@ app.get('/', (req, res) => {
       '📦 Batch Processing'
     ],
     endpoints: {
-      // Agent endpoints (NEW)
+      // Agent endpoints (ENHANCED)
       agent: {
         createProject: 'POST /api/agent/create-project',
         continueProject: 'POST /api/agent/continue-project',
+        advancedGenerate: 'POST /api/agent/advanced-generate',
+        streamGenerate: 'POST /api/agent/stream-generate',
+        bulkFileGenerate: 'POST /api/agent/bulk-file-generate',
+        enhancePrompt: 'POST /api/agent/enhance-prompt',
         getProjects: 'GET /api/agent/projects',
         getProject: 'GET /api/agent/projects/:id/status',
         getFiles: 'GET /api/agent/projects/:id/files',
@@ -153,7 +161,7 @@ app.get('/', (req, res) => {
     },
     integration: {
       guide: 'See CLINE_AGENT_API_IMPLEMENTATION_GUIDE.md',
-      examples: 'Full autonomous coding agent with multi-step execution'
+      examples: 'Advanced autonomous coding agent with enhanced prompts and streaming'
     },
     usage: {
       createProject: {
@@ -162,6 +170,26 @@ app.get('/', (req, res) => {
           description: 'Create a React todo app with API integration',
           preferences: { framework: 'React', styling: 'Tailwind CSS' },
           streaming: true
+        }
+      },
+      advancedGenerate: {
+        url: 'POST /api/agent/advanced-generate',
+        body: {
+          description: 'Create a modern React component with advanced features',
+          projectType: 'web-application',
+          framework: 'react',
+          features: ['responsive-design', 'animations', 'accessibility'],
+          qualityLevel: 'advanced',
+          streaming: false
+        }
+      },
+      streamGenerate: {
+        url: 'POST /api/agent/stream-generate',
+        body: {
+          description: 'Generate files with real-time streaming',
+          qualityLevel: 'advanced',
+          realTimeValidation: true,
+          autoCorrection: true
         }
       }
     }
