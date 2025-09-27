@@ -15,6 +15,7 @@ const useDirectClineChat = () => {
 
   const wsService = useRef(null);
   const apiService = useRef(null);
+  const streamingService = useRef(null);
   const streamingContent = useRef('');
   const currentMessageId = useRef(null);
 
