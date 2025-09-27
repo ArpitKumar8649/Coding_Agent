@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { 
-  Tool, 
+  Settings, 
   Clock, 
   CheckCircle, 
   XCircle, 
