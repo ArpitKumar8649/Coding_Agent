@@ -112,7 +112,13 @@ const MainDashboard = () => {
             </div>
 
             {/* Quick Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+              <GlassMorphismCard glowColor="indigo" className="p-6 text-center">
+                <CodeBracketIcon className="w-8 h-8 text-indigo-400 mx-auto mb-3" />
+                <div className="text-2xl font-bold text-white mb-1">2</div>
+                <div className="text-sm text-gray-400">Code Files</div>
+              </GlassMorphismCard>
+              
               <GlassMorphismCard glowColor="blue" className="p-6 text-center">
                 <RocketLaunchIcon className="w-8 h-8 text-blue-400 mx-auto mb-3" />
                 <div className="text-2xl font-bold text-white mb-1">0</div>
