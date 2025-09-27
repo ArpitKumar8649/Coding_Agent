@@ -66,7 +66,7 @@ const EnhancedToolExecutionMessage = ({
       'write_file': <FileText className="w-4 h-4" />
     };
     
-    return toolIcons[tool] || <Tool className="w-4 h-4" />;
+    return toolIcons[tool] || <Settings className="w-4 h-4" />;
   };
 
   const formatParameters = (params) => {
