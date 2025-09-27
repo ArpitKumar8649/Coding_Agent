@@ -17,6 +17,7 @@ import {
   SparklesIcon,
   ChatBubbleLeftIcon,
   ServerIcon,
+  CodeBracketIcon,
   Bars3Icon,
   XMarkIcon,
   BoltIcon,
