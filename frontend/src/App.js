@@ -118,7 +118,10 @@ function App() {
             ) : isConnected ? (
               <>
                 <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
-                <span className="text-sm font-medium">Connected to Cline API</span>
+                <span className="text-sm font-medium">Connected to Advanced Cline API</span>
+                {streamingFeatures.optimizedStreaming && (
+                  <span className="text-xs ml-1">⚡</span>
+                )}
               </>
             ) : (
               <>
