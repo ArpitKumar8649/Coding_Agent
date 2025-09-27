@@ -59,21 +59,28 @@ const useDirectClineChat = () => {
 
   const initializeConnection = async () => {
     try {
-      // Test API connection first
+      // Test basic API connection first
       console.log('🔵 Testing Cline API connection...');
-      const connectionTest = await apiService.current.testConnection();
-      
-      if (!connectionTest.success) {
-        console.error('❌ API Connection Test Failed:', connectionTest);
-        throw new Error(`Cannot connect to Cline API: ${connectionTest.error || 'Unknown error'}`);
-      }
-      
-      console.log('✅ API Connection Test Success:', connectionTest);
+      const healthTest = await apiService.current.checkHealth();
+      console.log('✅ Basic API Health Check Success:', healthTest);
 
-      // Connect WebSocket
-      await wsService.current.connect();
+      // Try WebSocket connection with timeout
+      console.log('🔌 Attempting WebSocket connection...');
       
-      console.log('✅ Connected to Cline API directly');
+      try {
+        await Promise.race([
+          wsService.current.connect(),
+          new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('WebSocket timeout')), 5000)
+          )
+        ]);
+        console.log('✅ WebSocket connected successfully');
+      } catch (wsError) {
+        console.warn('⚠️ WebSocket failed, using HTTP fallback:', wsError.message);
+        // Force HTTP fallback mode
+        wsService.current.httpFallbackMode = true;
+        wsService.current.emit('connected');
+      }
 
     } catch (error) {
       console.error('❌ Failed to initialize connection:', error);
