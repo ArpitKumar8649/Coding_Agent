@@ -315,6 +315,180 @@ class AdvancedClineAPIService {
     }
   }
 
+  // ============ ENHANCED API ENDPOINTS ============
+
+  /**
+   * Advanced code generation with enhanced system prompts
+   */
+  async advancedGenerate(request) {
+    return this.request('/api/agent/advanced-generate', {
+      method: 'POST',
+      body: JSON.stringify({
+        description: request.description,
+        projectType: request.projectType || 'web-application',
+        framework: request.framework || 'react',
+        features: request.features || [],
+        qualityLevel: request.qualityLevel || 'advanced',
+        streaming: request.streaming || false,
+        fileSpecs: request.fileSpecs || [],
+        contextAware: request.contextAware !== false
+      })
+    });
+  }
+
+  /**
+   * Streaming generation with real-time updates
+   */
+  async streamGenerate(request, callbacks = {}) {
+    const { onChunk, onComplete, onError } = callbacks;
+    
+    try {
+      const response = await fetch(`${this.baseURL}/api/agent/stream-generate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.apiKey}`,
+          'Cache-Control': 'no-cache'
+        },
+        body: JSON.stringify({
+          description: request.description,
+          fileSpecs: request.fileSpecs || [],
+          qualityLevel: request.qualityLevel || 'advanced',
+          realTimeValidation: request.realTimeValidation !== false,
+          autoCorrection: request.autoCorrection !== false
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Stream generation failed: ${response.statusText}`);
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        
+        if (done) break;
+        
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop(); // Keep incomplete line in buffer
+        
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(line.slice(6));
+              
+              if (data.type === 'started') {
+                console.log('🌊 Stream started:', data.streamId);
+              } else if (data.type === 'complete') {
+                onComplete?.(data.result);
+                return data.result;
+              } else if (data.type === 'error') {
+                onError?.(new Error(data.error));
+                throw new Error(data.error);
+              } else {
+                onChunk?.(data);
+              }
+            } catch (parseError) {
+              console.warn('Failed to parse stream data:', line);
+            }
+          }
+        }
+      }
+      
+    } catch (error) {
+      console.error('Stream generation failed:', error);
+      onError?.(error);
+      throw error;
+    }
+  }
+
+  /**
+   * Bulk file generation
+   */
+  async bulkFileGenerate(request) {
+    return this.request('/api/agent/bulk-file-generate', {
+      method: 'POST',
+      body: JSON.stringify({
+        files: request.files || [],
+        projectContext: request.projectContext || {},
+        generateDependencies: request.generateDependencies !== false,
+        qualityLevel: request.qualityLevel || 'advanced',
+        streaming: request.streaming || false
+      })
+    });
+  }
+
+  /**
+   * Enhance system prompt
+   */
+  async enhancePrompt(request) {
+    return this.request('/api/agent/enhance-prompt', {
+      method: 'POST',
+      body: JSON.stringify({
+        basePrompt: request.basePrompt || '',
+        context: request.context || {},
+        qualityLevel: request.qualityLevel || 'advanced',
+        projectType: request.projectType || 'web-application',
+        features: request.features || []
+      })
+    });
+  }
+
+  /**
+   * Get agent service stats
+   */
+  async getAgentStats() {
+    return this.request('/api/agent/stats');
+  }
+
+  /**
+   * Test advanced features
+   */
+  async testAdvancedFeatures() {
+    try {
+      const [health, stats] = await Promise.all([
+        this.request('/health'),
+        this.request('/api/agent/health')
+      ]);
+      
+      return {
+        success: true,
+        health,
+        agentStats: stats,
+        features: {
+          advancedGenerate: true,
+          streamGenerate: true,
+          bulkFileGenerate: true,
+          enhancePrompt: true,
+          realTimeValidation: true,
+          autoCorrection: true
+        }
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+
+  /**
+   * Quick generate method for simple use cases
+   */
+  async quickGenerate(description, options = {}) {
+    return this.advancedGenerate({
+      description,
+      qualityLevel: options.quality || 'advanced',
+      framework: options.framework || 'react',
+      features: options.features || ['responsive-design', 'animations', 'accessibility'],
+      streaming: options.streaming || false
+    });
+  }
+
   // Get service statistics
   getStats() {
     return {
@@ -328,7 +502,14 @@ class AdvancedClineAPIService {
         fileTransfer: true,
         qualityTesting: true,
         planActModes: true,
-        caching: !!this.cache
+        caching: !!this.cache,
+        // Enhanced features
+        advancedGenerate: true,
+        streamGenerate: true,
+        bulkFileGenerate: true,
+        enhancePrompt: true,
+        realTimeValidation: true,
+        autoCorrection: true
       }
     };
   }
