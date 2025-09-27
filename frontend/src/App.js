@@ -139,7 +139,7 @@ function App() {
       {/* Development Debug Panel */}
       {process.env.NODE_ENV === 'development' && (
         <div className="fixed bottom-4 left-4 p-3 bg-gray-800 text-gray-300 text-xs rounded-lg border border-gray-600 max-w-xs z-40">
-          <div className="font-semibold mb-2 text-blue-400">Debug Info</div>
+          <div className="font-semibold mb-2 text-blue-400">Advanced Debug Info</div>
           <div className="space-y-1">
             <div>Connected: {isConnected ? '✅' : '❌'}</div>
             <div>Mode: <span className={currentMode === 'PLAN' ? 'text-blue-400' : 'text-green-400'}>{currentMode}</span></div>
@@ -150,6 +150,9 @@ function App() {
             }>{agentStatus}</span></div>
             <div>Messages: {messages.length}</div>
             <div>Streaming: {isStreaming ? '✅' : '❌'}</div>
+            <div>Features: {Object.keys(streamingFeatures).length}</div>
+            <div>Msgs Sent: {stats.messagesSent || 0}</div>
+            <div>Streams: {stats.streamsActive || 0}</div>
             {currentProject && (
               <div>Project: {currentProject.id.substring(0, 8)}...</div>
             )}
