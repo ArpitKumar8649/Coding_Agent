@@ -36,7 +36,7 @@ const EnhancedToolExecutionMessage = ({
       case 'executing':
         return <AlertCircle className="w-4 h-4 text-yellow-400 animate-pulse" />;
       default:
-        return <Tool className="w-4 h-4 text-gray-400" />;
+        return <Settings className="w-4 h-4 text-gray-400" />;
     }
   };
 
