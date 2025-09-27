@@ -11,7 +11,7 @@ const { rateLimiter } = require('./middleware/rateLimit');
 
 // Services
 const OptimizedStreamingService = require('./services/OptimizedStreamingService');
-const AdvancedClineAPI = require('./advanced/AdvancedClineAPI');
+const MockAdvancedClineAPI = require('./advanced/MockAdvancedClineAPI');
 
 const app = express();
 const server = http.createServer(app);
