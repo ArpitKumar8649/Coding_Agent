@@ -59,10 +59,12 @@ const FileChangeMessage = ({ action, filePath, content, diff, timestamp }) => {
   };
 
   const getFileName = (path) => {
+    if (!path || typeof path !== 'string') return 'Unknown file';
     return path.split('/').pop() || path;
   };
 
   const getFileExtension = (path) => {
+    if (!path || typeof path !== 'string') return '';
     const extension = path.split('.').pop();
     return extension !== path ? extension : '';
   };
