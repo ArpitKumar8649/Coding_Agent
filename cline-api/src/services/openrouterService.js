@@ -204,8 +204,19 @@ class OpenRouterService {
                 throw new Error('No response generated');
             }
         } catch (error) {
-            console.error('❌ Context generation error:', error.response?.data || error.message);
-            throw new Error(`Context generation failed: ${error.response?.data?.error || error.message}`);
+            console.error('❌ Context generation error:', {
+                status: error.response?.status,
+                statusText: error.response?.statusText,
+                data: error.response?.data,
+                message: error.message
+            });
+            
+            const errorMessage = error.response?.data?.error?.message || 
+                                error.response?.data?.message || 
+                                error.response?.statusText || 
+                                error.message;
+            
+            throw new Error(`Context generation failed: ${errorMessage}`);
         }
     }
 
