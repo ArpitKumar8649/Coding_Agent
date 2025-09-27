@@ -449,6 +449,7 @@
 		"mammoth": "^1.8.0",
 		"monaco-vscode-textmate-theme-converter": "^0.1.7",
 		"nice-grpc": "^2.1.12",
+		"node-fetch": "^3.3.2",
 		"ollama": "^0.5.13",
 		"open": "^10.1.2",
 		"open-graph-scraper": "^6.9.0",
@@ -469,6 +470,7 @@
 		"turndown": "^7.2.0",
 		"vscode-uri": "^3.1.0",
 		"web-tree-sitter": "^0.22.6",
+		"ws": "^8.18.3",
 		"zod": "^3.24.2"
 	}
 }
