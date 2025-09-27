@@ -55,7 +55,7 @@ console.log('🚀 Initializing optimized services...');
 const streamingService = new OptimizedStreamingService(server);
 
 // Initialize Advanced Cline API
-const advancedAPI = new AdvancedClineAPI({
+const advancedAPI = new MockAdvancedClineAPI({
   workspaceDir: process.env.WORKSPACE_DIR || '/tmp/cline-workspace',
   llmProvider: process.env.LLM_PROVIDER || 'openai',
   qualityLevel: process.env.QUALITY_LEVEL || 'advanced',
