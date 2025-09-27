@@ -459,6 +459,527 @@ class AgentService {
     }
 
     /**
+     * Advanced code generation with enhanced system prompts
+     */
+    async advancedGenerate(request) {
+        const {
+            description,
+            projectType = 'web-application',
+            framework = 'react',
+            features = [],
+            qualityLevel = 'advanced',
+            streaming = false,
+            fileSpecs = [],
+            contextAware = true,
+            userId = 'anonymous'
+        } = request;
+
+        console.log(`🧠 Advanced Generate: ${description.substring(0, 50)}... (${qualityLevel})`);
+        
+        try {
+            // Generate enhanced system prompt
+            const systemPrompt = contextAware 
+                ? this.systemPromptEngine.generateContextAwarePrompt({
+                    framework,
+                    technologies: [framework, ...features],
+                    features,
+                    complexity: qualityLevel,
+                    qualityLevel
+                })
+                : this.systemPromptEngine.generateQualityEnhancedPrompt(qualityLevel, projectType, features);
+
+            // Prepare project context
+            const projectContext = {
+                description,
+                projectType,
+                framework,
+                features,
+                qualityLevel,
+                fileSpecs,
+                systemPrompt
+            };
+
+            // Generate files based on specs or infer from description
+            const filesToGenerate = fileSpecs.length > 0 
+                ? fileSpecs 
+                : this.inferFileSpecsFromDescription(description, framework, features);
+
+            const results = [];
+            const generationId = `gen_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+            for (const fileSpec of filesToGenerate) {
+                console.log(`📝 Generating: ${fileSpec.path} (${fileSpec.type})`);
+                
+                const enhancedPrompt = this.buildFileGenerationPrompt(
+                    fileSpec, 
+                    projectContext, 
+                    systemPrompt
+                );
+
+                const generationResult = await this.llmService.generateCode(enhancedPrompt, {
+                    maxTokens: 4000,
+                    temperature: qualityLevel === 'advanced' ? 0.2 : 0.4,
+                    model: this.getModelForQuality(qualityLevel)
+                });
+
+                const processedResult = this.processGeneratedContent(
+                    generationResult.content,
+                    fileSpec,
+                    projectContext
+                );
+
+                results.push({
+                    file: fileSpec,
+                    content: processedResult.content,
+                    analysis: processedResult.analysis,
+                    quality: processedResult.quality,
+                    metadata: {
+                        tokensUsed: generationResult.tokensUsed,
+                        model: generationResult.model,
+                        processingTime: generationResult.processingTime
+                    }
+                });
+            }
+
+            this.stats.advancedGenerations++;
+            this.stats.totalFiles += results.length;
+
+            return {
+                success: true,
+                generationId,
+                results,
+                projectContext,
+                summary: {
+                    filesGenerated: results.length,
+                    totalTokens: results.reduce((sum, r) => sum + (r.metadata.tokensUsed || 0), 0),
+                    averageQuality: results.reduce((sum, r) => sum + (r.quality || 5), 0) / results.length,
+                    framework,
+                    features,
+                    qualityLevel
+                },
+                timestamp: new Date().toISOString()
+            };
+
+        } catch (error) {
+            console.error(`❌ Advanced generation failed:`, error);
+            throw {
+                success: false,
+                error: error.message,
+                description,
+                timestamp: new Date().toISOString()
+            };
+        }
+    }
+
+    /**
+     * Create streaming generation session
+     */
+    async createStreamingGeneration(request) {
+        const {
+            description,
+            fileSpecs = [],
+            qualityLevel = 'advanced',
+            realTimeValidation = true,
+            autoCorrection = true,
+            onChunk,
+            onComplete,
+            onError
+        } = request;
+
+        const streamId = `stream_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        
+        console.log(`🌊 Creating streaming session: ${streamId}`);
+
+        try {
+            // Infer file specs if not provided
+            const filesToGenerate = fileSpecs.length > 0 
+                ? fileSpecs 
+                : this.inferFileSpecsFromDescription(description, 'react', []);
+
+            // Create streaming session
+            const streamingSession = {
+                id: streamId,
+                description,
+                fileSpecs: filesToGenerate,
+                qualityLevel,
+                realTimeValidation,
+                autoCorrection,
+                status: 'active',
+                startTime: new Date(),
+                callbacks: { onChunk, onComplete, onError },
+                currentFileIndex: 0,
+                results: []
+            };
+
+            this.activeStreams.set(streamId, streamingSession);
+            this.stats.streamingSessions++;
+
+            // Start streaming generation
+            this.processStreamingGeneration(streamingSession);
+
+            return streamId;
+
+        } catch (error) {
+            console.error(`❌ Streaming session creation failed:`, error);
+            throw error;
+        }
+    }
+
+    /**
+     * Process streaming generation
+     */
+    async processStreamingGeneration(session) {
+        try {
+            for (let i = 0; i < session.fileSpecs.length; i++) {
+                session.currentFileIndex = i;
+                const fileSpec = session.fileSpecs[i];
+                
+                console.log(`🌊 Streaming: ${fileSpec.path}`);
+
+                // Create file stream
+                const fileStream = this.streamingEngine.createStream(
+                    session.id,
+                    fileSpec,
+                    {
+                        description: session.description,
+                        qualityLevel: session.qualityLevel,
+                        realTimeValidation: session.realTimeValidation,
+                        autoCorrection: session.autoCorrection
+                    }
+                );
+
+                // Set up stream handlers
+                fileStream.on('content-chunk', (data) => {
+                    if (session.callbacks.onChunk) {
+                        session.callbacks.onChunk({
+                            type: 'file-chunk',
+                            streamId: session.id,
+                            fileIndex: i,
+                            file: fileSpec,
+                            ...data
+                        });
+                    }
+                });
+
+                fileStream.on('generation-complete', (data) => {
+                    session.results.push({
+                        file: fileSpec,
+                        ...data
+                    });
+                });
+
+                // Start file generation
+                await fileStream.start(null); // No socket for API mode
+
+                // Brief pause between files
+                if (i < session.fileSpecs.length - 1) {
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                }
+            }
+
+            // Complete session
+            session.status = 'completed';
+            session.endTime = new Date();
+
+            if (session.callbacks.onComplete) {
+                session.callbacks.onComplete({
+                    streamId: session.id,
+                    results: session.results,
+                    summary: {
+                        filesGenerated: session.results.length,
+                        totalTime: session.endTime - session.startTime,
+                        averageQuality: session.results.reduce((sum, r) => sum + (r.quality || 5), 0) / session.results.length
+                    }
+                });
+            }
+
+            // Cleanup
+            this.activeStreams.delete(session.id);
+
+        } catch (error) {
+            console.error(`❌ Streaming generation error:`, error);
+            session.status = 'error';
+            
+            if (session.callbacks.onError) {
+                session.callbacks.onError(error);
+            }
+        }
+    }
+
+    /**
+     * Bulk file generation
+     */
+    async bulkFileGenerate(request) {
+        const {
+            files = [],
+            projectContext = {},
+            generateDependencies = true,
+            qualityLevel = 'advanced',
+            streaming = false,
+            userId = 'anonymous'
+        } = request;
+
+        console.log(`📁 Bulk generating ${files.length} files`);
+
+        try {
+            const results = [];
+            const dependencies = generateDependencies ? this.analyzeDependencies(files) : [];
+            
+            // Generate system prompt for bulk generation
+            const bulkPrompt = this.systemPromptEngine.generateContextAwarePrompt({
+                framework: projectContext.framework || 'react',
+                technologies: projectContext.technologies || ['react'],
+                features: projectContext.features || [],
+                complexity: qualityLevel,
+                qualityLevel
+            });
+
+            // Process files in dependency order
+            const sortedFiles = [...dependencies, ...files.filter(f => !dependencies.find(d => d.path === f.path))];
+
+            for (const fileSpec of sortedFiles) {
+                console.log(`📝 Bulk generating: ${fileSpec.path}`);
+                
+                const filePrompt = this.buildFileGenerationPrompt(fileSpec, {
+                    ...projectContext,
+                    qualityLevel,
+                    generatedFiles: results.map(r => ({ path: r.file.path, content: r.content }))
+                }, bulkPrompt);
+
+                const generationResult = await this.llmService.generateCode(filePrompt, {
+                    maxTokens: 4000,
+                    temperature: 0.2,
+                    model: this.getModelForQuality(qualityLevel)
+                });
+
+                const processedResult = this.processGeneratedContent(
+                    generationResult.content,
+                    fileSpec,
+                    projectContext
+                );
+
+                results.push({
+                    file: fileSpec,
+                    content: processedResult.content,
+                    analysis: processedResult.analysis,
+                    quality: processedResult.quality,
+                    isDependency: dependencies.includes(fileSpec),
+                    metadata: {
+                        tokensUsed: generationResult.tokensUsed,
+                        model: generationResult.model,
+                        processingTime: generationResult.processingTime
+                    }
+                });
+            }
+
+            this.stats.totalFiles += results.length;
+
+            return {
+                success: true,
+                results,
+                dependencies: dependencies.map(d => d.path),
+                summary: {
+                    filesGenerated: results.length,
+                    dependenciesGenerated: dependencies.length,
+                    totalTokens: results.reduce((sum, r) => sum + (r.metadata.tokensUsed || 0), 0),
+                    averageQuality: results.reduce((sum, r) => sum + (r.quality || 5), 0) / results.length
+                },
+                timestamp: new Date().toISOString()
+            };
+
+        } catch (error) {
+            console.error(`❌ Bulk file generation failed:`, error);
+            throw error;
+        }
+    }
+
+    /**
+     * Enhance system prompt for specific context
+     */
+    async enhanceSystemPrompt(request) {
+        const {
+            basePrompt = '',
+            context = {},
+            qualityLevel = 'advanced',
+            projectType = 'web-application',
+            features = []
+        } = request;
+
+        console.log(`✨ Enhancing prompt for ${projectType} (${qualityLevel})`);
+
+        try {
+            let enhancedPrompt;
+            
+            if (basePrompt) {
+                // Enhance existing prompt
+                enhancedPrompt = basePrompt + '\n\n' + this.systemPromptEngine.generateQualityEnhancedPrompt(
+                    qualityLevel, 
+                    projectType, 
+                    features
+                );
+            } else {
+                // Generate new enhanced prompt
+                enhancedPrompt = this.systemPromptEngine.generateContextAwarePrompt({
+                    framework: context.framework || 'react',
+                    technologies: context.technologies || ['react'],
+                    features,
+                    complexity: qualityLevel,
+                    qualityLevel,
+                    projectType
+                });
+            }
+
+            const enhancement = {
+                originalLength: basePrompt.length,
+                enhancedLength: enhancedPrompt.length,
+                qualityLevel,
+                projectType,
+                features,
+                addedSections: [
+                    'Quality Standards',
+                    'Advanced Patterns',
+                    'Context Awareness',
+                    'Code Standards'
+                ]
+            };
+
+            return {
+                prompt: enhancedPrompt,
+                enhancement,
+                metadata: {
+                    version: '1.0',
+                    generatedAt: new Date().toISOString(),
+                    engine: 'SystemPromptEngine'
+                }
+            };
+
+        } catch (error) {
+            console.error(`❌ Prompt enhancement failed:`, error);
+            throw error;
+        }
+    }
+
+    /**
+     * Helper methods for advanced features
+     */
+
+    inferFileSpecsFromDescription(description, framework = 'react', features = []) {
+        const fileSpecs = [];
+        const lowerDesc = description.toLowerCase();
+
+        if (lowerDesc.includes('react') || framework === 'react') {
+            fileSpecs.push(
+                { path: 'src/App.js', type: 'react-component', description: 'Main application component' },
+                { path: 'src/App.css', type: 'stylesheet', description: 'Main application styles' },
+                { path: 'src/index.js', type: 'react-entry', description: 'React application entry point' },
+                { path: 'public/index.html', type: 'html', description: 'HTML template' }
+            );
+        }
+
+        if (lowerDesc.includes('api') || lowerDesc.includes('backend')) {
+            fileSpecs.push(
+                { path: 'server.js', type: 'node-server', description: 'Backend server' },
+                { path: 'package.json', type: 'package-config', description: 'Node.js dependencies' }
+            );
+        }
+
+        if (lowerDesc.includes('database') || lowerDesc.includes('mongo')) {
+            fileSpecs.push(
+                { path: 'models/index.js', type: 'database-model', description: 'Database models' }
+            );
+        }
+
+        return fileSpecs;
+    }
+
+    buildFileGenerationPrompt(fileSpec, projectContext, systemPrompt) {
+        return `${systemPrompt}
+
+====
+
+CURRENT TASK: Generate ${fileSpec.path}
+
+FILE SPECIFICATION:
+- Path: ${fileSpec.path}
+- Type: ${fileSpec.type}
+- Description: ${fileSpec.description}
+
+PROJECT CONTEXT:
+- Framework: ${projectContext.framework || 'React'}
+- Quality Level: ${projectContext.qualityLevel || 'advanced'}
+- Features: ${projectContext.features ? projectContext.features.join(', ') : 'Standard features'}
+
+REQUIREMENTS:
+${projectContext.description}
+
+EXISTING FILES:
+${projectContext.generatedFiles ? projectContext.generatedFiles.map(f => `- ${f.path}`).join('\n') : 'None'}
+
+Generate high-quality, production-ready code for ${fileSpec.path} that integrates well with the project structure and follows modern best practices.`;
+    }
+
+    processGeneratedContent(content, fileSpec, projectContext) {
+        const analysis = {
+            lines: content.split('\n').length,
+            hasImports: content.includes('import '),
+            hasExports: content.includes('export '),
+            hasComments: content.includes('//') || content.includes('/*'),
+            hasTypeScript: content.includes(': ') && fileSpec.path.endsWith('.ts'),
+            framework: this.detectFramework(content)
+        };
+
+        const quality = this.assessContentQuality(content, fileSpec, analysis);
+
+        return {
+            content,
+            analysis,
+            quality
+        };
+    }
+
+    detectFramework(content) {
+        if (content.includes('React') || content.includes('useState')) return 'react';
+        if (content.includes('Vue') || content.includes('createApp')) return 'vue';
+        if (content.includes('Angular') || content.includes('@Component')) return 'angular';
+        return 'vanilla';
+    }
+
+    assessContentQuality(content, fileSpec, analysis) {
+        let score = 5; // Base score
+
+        if (analysis.hasComments) score += 1;
+        if (analysis.hasImports && analysis.hasExports) score += 1;
+        if (content.includes('PropTypes') || content.includes('interface ')) score += 1;
+        if (content.includes('aria-') || content.includes('role=')) score += 1;
+        if (content.includes('try {') || content.includes('catch')) score += 1;
+        if (content.length > 200) score += 1; // Substantial content
+
+        return Math.min(score, 10);
+    }
+
+    analyzeDependencies(files) {
+        // Simple dependency analysis - should be more sophisticated in production
+        const dependencies = [];
+        
+        for (const file of files) {
+            if (file.path.includes('package.json') || file.path.includes('index.')) {
+                dependencies.unshift(file); // Add to beginning
+            }
+        }
+
+        return dependencies;
+    }
+
+    getModelForQuality(qualityLevel) {
+        switch (qualityLevel) {
+            case 'poor': return 'gpt-3.5-turbo';
+            case 'medium': return 'gpt-4';
+            case 'advanced': return 'claude-3-5-sonnet-20241022';
+            default: return 'gpt-4';
+        }
+    }
+
+    /**
      * Cleanup all resources
      */
     async cleanup() {
@@ -473,6 +994,7 @@ class AgentService {
         }
 
         this.agents.clear();
+        this.activeStreams.clear();
         console.log('✅ Agent Service cleanup complete');
     }
 }
