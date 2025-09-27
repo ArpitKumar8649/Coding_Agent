@@ -51,10 +51,15 @@ const useDirectClineChat = () => {
   const initializeConnection = async () => {
     try {
       // Test API connection first
+      console.log('🔵 Testing Cline API connection...');
       const connectionTest = await apiService.current.testConnection();
+      
       if (!connectionTest.success) {
-        throw new Error('Cannot connect to Cline API service');
+        console.error('❌ API Connection Test Failed:', connectionTest);
+        throw new Error(`Cannot connect to Cline API: ${connectionTest.error || 'Unknown error'}`);
       }
+      
+      console.log('✅ API Connection Test Success:', connectionTest);
 
       // Connect WebSocket
       await wsService.current.connect();
@@ -62,8 +67,17 @@ const useDirectClineChat = () => {
       console.log('✅ Connected to Cline API directly');
 
     } catch (error) {
-      console.error('Failed to initialize connection:', error);
-      setConnectionError(error.message);
+      console.error('❌ Failed to initialize connection:', error);
+      setConnectionError(`Connection Failed: ${error.message}`);
+      
+      // Add detailed error to chat
+      addMessage({
+        type: 'system',
+        content: `❌ **Connection Error**\n\n${error.message}\n\n**API URL:** ${apiService.current.baseURL}\n**API Key:** ${apiService.current.apiKey ? 'Present' : 'Missing'}\n\n**Time:** ${new Date().toLocaleTimeString()}`,
+        variant: 'error',
+        timestamp: Date.now(),
+        isError: true
+      });
     }
   };
 
