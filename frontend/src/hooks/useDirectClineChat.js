@@ -284,7 +284,17 @@ const useDirectClineChat = () => {
       return true;
     } catch (error) {
       console.error('Failed to send message:', error);
-      addSystemMessage(`Error: ${error.message}`, 'error');
+      
+      // Add detailed error message to chat
+      addMessage({
+        type: 'system',
+        content: `❌ **API Error Details:**\n\n**Error:** ${error.message}\n\n**Endpoint:** ${currentProject ? 'continue-project' : 'create-project'}\n\n**API URL:** ${apiService.current.baseURL}\n\n**Time:** ${new Date().toLocaleTimeString()}`,
+        variant: 'error',
+        timestamp: Date.now(),
+        isError: true
+      });
+      
+      setConnectionError(error.message);
       return false;
     }
   }, [isConnected, currentProject, currentMode]);
