@@ -51,6 +51,9 @@ const useDirectClineChat = () => {
       if (wsService.current) {
         wsService.current.disconnect();
       }
+      if (streamingService.current) {
+        streamingService.current.cleanup();
+      }
     };
   }, []);
 
