@@ -1,9 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import MainDashboard from './components/MainDashboard';
 import AdvancedChatInterface from './components/chat/AdvancedChatInterface';
 import useAdvancedClineChat from './hooks/useAdvancedClineChat';
+import { 
+  HomeIcon,
+  ChatBubbleLeftRightIcon,
+  ArrowsRightLeftIcon 
+} from '@heroicons/react/24/outline';
 import './App.css';
 
 function App() {
+  const [currentView, setCurrentView] = useState('dashboard'); // 'dashboard' or 'chat'
+  
   const {
     messages,
     isConnected,
@@ -23,17 +31,6 @@ function App() {
     clearMessages,
     getPerformanceStats
   } = useAdvancedClineChat();
-
-  const [showConnectionStatus, setShowConnectionStatus] = useState(false);
-
-  // Show connection status on connection changes
-  useEffect(() => {
-    if (isConnected || connectionError) {
-      setShowConnectionStatus(true);
-      const timer = setTimeout(() => setShowConnectionStatus(false), 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [isConnected, connectionError]);
 
   const handleSendMessage = (message) => {
     const success = sendMessage(message);
@@ -76,71 +73,96 @@ function App() {
   };
 
   return (
-    <div className="App h-screen w-screen bg-gray-900 overflow-hidden">
-      {/* Main Chat Interface */}
-      <div className="h-full w-full flex flex-col">
-        <AdvancedChatInterface
-          messages={messages}
-          onSendMessage={handleSendMessage}
-          isConnected={isConnected}
-          isStreaming={isStreaming}
-          currentMode={currentMode}
-          onModeChange={handleModeChange}
-          agentStatus={agentStatus}
-          currentProject={currentProject}
-          connectionError={connectionError}
-          onReconnect={reconnect}
-          onClearMessages={handleClearMessages}
-          onCancelProject={handleCancelProject}
-          onUploadFile={handleUploadFile}
-          onJoinCollaboration={handleJoinCollaboration}
-          streamingFeatures={streamingFeatures}
-          stats={stats}
-          performanceStats={getPerformanceStats()}
-        />
+    <div className="App h-screen w-screen overflow-hidden relative">
+      {/* Animated Background */}
+      <div className="fixed inset-0 bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.1),transparent_50%)]"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(168,85,247,0.1),transparent_50%)]"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(34,197,94,0.1),transparent_50%)]"></div>
       </div>
 
-      {/* Global Notifications */}
-      {showConnectionStatus && (
-        <div className={`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm transition-all duration-300 ${
+      {/* View Toggle */}
+      <div className="fixed top-4 right-4 z-50 flex items-center space-x-2">
+        <div className="bg-black/20 backdrop-blur-md border border-white/20 rounded-lg p-1 flex">
+          <button
+            onClick={() => setCurrentView('dashboard')}
+            className={`flex items-center space-x-2 px-4 py-2 rounded-md transition-all ${
+              currentView === 'dashboard'
+                ? 'bg-blue-500 text-white shadow-lg'
+                : 'text-gray-300 hover:text-white hover:bg-white/10'
+            }`}
+          >
+            <HomeIcon className="w-4 h-4" />
+            <span className="text-sm font-medium">Dashboard</span>
+          </button>
+          
+          <button
+            onClick={() => setCurrentView('chat')}
+            className={`flex items-center space-x-2 px-4 py-2 rounded-md transition-all ${
+              currentView === 'chat'
+                ? 'bg-blue-500 text-white shadow-lg'
+                : 'text-gray-300 hover:text-white hover:bg-white/10'
+            }`}
+          >
+            <ChatBubbleLeftRightIcon className="w-4 h-4" />
+            <span className="text-sm font-medium">Chat</span>
+          </button>
+        </div>
+        
+        {/* Connection Status Indicator */}
+        <div className={`px-3 py-2 rounded-lg backdrop-blur-md border ${
           connectionError 
-            ? 'bg-red-600 text-white' 
+            ? 'bg-red-500/20 border-red-400/30 text-red-300' 
             : isConnected 
-              ? 'bg-green-600 text-white' 
-              : 'bg-yellow-600 text-white'
+              ? 'bg-green-500/20 border-green-400/30 text-green-300' 
+              : 'bg-yellow-500/20 border-yellow-400/30 text-yellow-300'
         }`}>
           <div className="flex items-center space-x-2">
-            {connectionError ? (
-              <>
-                <div className="w-2 h-2 bg-white rounded-full"></div>
-                <span className="text-sm font-medium">Connection Error</span>
-              </>
-            ) : isConnected ? (
-              <>
-                <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
-                <span className="text-sm font-medium">Connected to Advanced Cline API</span>
-                {streamingFeatures.optimizedStreaming && (
-                  <span className="text-xs ml-1">⚡</span>
-                )}
-              </>
-            ) : (
-              <>
-                <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
-                <span className="text-sm font-medium">Connecting...</span>
-              </>
-            )}
+            <div className={`w-2 h-2 rounded-full ${
+              connectionError ? 'bg-red-400' : isConnected ? 'bg-green-400 animate-pulse' : 'bg-yellow-400'
+            }`}></div>
+            <span className="text-xs font-medium">
+              {connectionError ? 'Error' : isConnected ? 'Connected' : 'Connecting'}
+            </span>
           </div>
-          {connectionError && (
-            <p className="text-xs mt-1 opacity-90">{connectionError}</p>
-          )}
         </div>
-      )}
+      </div>
+
+      {/* Main Content */}
+      <div className="relative z-10 h-full">
+        {currentView === 'dashboard' ? (
+          <MainDashboard />
+        ) : (
+          <div className="h-full w-full flex flex-col">
+            <AdvancedChatInterface
+              messages={messages}
+              onSendMessage={handleSendMessage}
+              isConnected={isConnected}
+              isStreaming={isStreaming}
+              currentMode={currentMode}
+              onModeChange={handleModeChange}
+              agentStatus={agentStatus}
+              currentProject={currentProject}
+              connectionError={connectionError}
+              onReconnect={reconnect}
+              onClearMessages={handleClearMessages}
+              onCancelProject={handleCancelProject}
+              onUploadFile={handleUploadFile}
+              onJoinCollaboration={handleJoinCollaboration}
+              streamingFeatures={streamingFeatures}
+              stats={stats}
+              performanceStats={getPerformanceStats()}
+            />
+          </div>
+        )}
+      </div>
 
       {/* Development Debug Panel */}
-      {process.env.NODE_ENV === 'development' && (
-        <div className="fixed bottom-4 left-4 p-3 bg-gray-800 text-gray-300 text-xs rounded-lg border border-gray-600 max-w-xs z-40">
-          <div className="font-semibold mb-2 text-blue-400">Advanced Debug Info</div>
+      {process.env.NODE_ENV === 'development' && currentView === 'chat' && (
+        <div className="fixed bottom-4 left-4 p-3 bg-black/40 backdrop-blur-md text-gray-300 text-xs rounded-lg border border-white/20 max-w-xs z-40">
+          <div className="font-semibold mb-2 text-blue-400">Debug Info</div>
           <div className="space-y-1">
+            <div>View: <span className="text-purple-400">{currentView}</span></div>
             <div>Connected: {isConnected ? '✅' : '❌'}</div>
             <div>Mode: <span className={currentMode === 'PLAN' ? 'text-blue-400' : 'text-green-400'}>{currentMode}</span></div>
             <div>Agent: <span className={
@@ -150,19 +172,13 @@ function App() {
             }>{agentStatus}</span></div>
             <div>Messages: {messages.length}</div>
             <div>Streaming: {isStreaming ? '✅' : '❌'}</div>
-            <div>Features: {Object.keys(streamingFeatures).length}</div>
-            <div>Msgs Sent: {stats.messagesSent || 0}</div>
-            <div>Streams: {stats.streamsActive || 0}</div>
             {currentProject && (
-              <div>Project: {currentProject.id.substring(0, 8)}...</div>
-            )}
-            {connectionError && (
-              <div className="text-red-400">Error: {connectionError}</div>
+              <div>Project: {currentProject.id?.substring(0, 8)}...</div>
             )}
           </div>
-          <div className="mt-2 pt-2 border-t border-gray-700 space-x-1">
+          <div className="mt-2 pt-2 border-t border-white/20 space-x-1">
             <button 
-              onClick={clearMessages}
+              onClick={handleClearMessages}
               className="px-2 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-xs"
             >
               Clear
