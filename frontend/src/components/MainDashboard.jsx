@@ -34,6 +34,7 @@ const MainDashboard = () => {
 
   const tabs = [
     { id: 'overview', label: 'Overview', icon: HomeIcon, color: 'blue' },
+    { id: 'workspace', label: 'Code Workspace', icon: CodeBracketIcon, color: 'indigo' },
     { id: 'projects', label: 'Projects', icon: RocketLaunchIcon, color: 'green' },
     { id: 'generation', label: 'Code Generation', icon: SparklesIcon, color: 'purple' },
     { id: 'sessions', label: 'Sessions', icon: ChatBubbleLeftIcon, color: 'blue' },
