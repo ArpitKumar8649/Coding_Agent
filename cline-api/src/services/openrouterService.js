@@ -62,8 +62,19 @@ class OpenRouterService {
                 throw new Error('No response generated from OpenRouter');
             }
         } catch (error) {
-            console.error('❌ OpenRouter API error:', error.response?.data || error.message);
-            throw new Error(`OpenRouter API failed: ${error.response?.data?.error || error.message}`);
+            console.error('❌ OpenRouter API error:', {
+                status: error.response?.status,
+                statusText: error.response?.statusText,
+                data: error.response?.data,
+                message: error.message
+            });
+            
+            const errorMessage = error.response?.data?.error?.message || 
+                                error.response?.data?.message || 
+                                error.response?.statusText || 
+                                error.message;
+            
+            throw new Error(`OpenRouter API failed: ${errorMessage}`);
         }
     }
 
