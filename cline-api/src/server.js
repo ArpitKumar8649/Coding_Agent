@@ -126,7 +126,7 @@ app.use(errorHandler);
 
 // Start server
 server.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 Cline API Service running on port ${PORT}`);
+  console.log(`🚀 Cline API Service running on port ${PORT} (Fixed generateCode issue - v1.0.1)`);
   console.log(`📚 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🤖 Default LLM Provider: ${process.env.DEFAULT_LLM_PROVIDER || 'anthropic'}`);
   console.log(`📡 Health check: http://localhost:${PORT}/health`);
