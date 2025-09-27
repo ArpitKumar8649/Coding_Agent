@@ -53,9 +53,26 @@ function App() {
   };
 
   const handleCancelProject = () => {
-    if (window.confirm('Are you sure you want to cancel the current project?')) {
-      cancelCurrentProject();
+    if (window.confirm('Are you sure you want to cancel the current stream?')) {
+      cancelCurrentStream();
     }
+  };
+
+  const handleUploadFile = async (file) => {
+    console.log('📎 Uploading file:', file.name);
+    try {
+      await uploadFile(file);
+    } catch (error) {
+      console.error('File upload failed:', error);
+    }
+  };
+
+  const handleJoinCollaboration = (roomId) => {
+    const userInfo = {
+      name: 'User',
+      role: 'developer'
+    };
+    joinCollaboration(roomId, userInfo);
   };
 
   return (
