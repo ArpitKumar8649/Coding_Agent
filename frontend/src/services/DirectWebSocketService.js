@@ -8,11 +8,13 @@ class DirectWebSocketService {
     this.ws = null;
     this.listeners = new Map();
     this.reconnectAttempts = 0;
-    this.maxReconnectAttempts = 5;
+    this.maxReconnectAttempts = 3; // Reduced for faster fallback
     this.reconnectDelay = 1000;
     this.projectId = null;
     this.isConnected = false;
     this.messageQueue = [];
+    this.httpFallbackMode = false;
+    this.connectionTimeout = 10000; // 10 second timeout
   }
 
   connect(url = null) {
