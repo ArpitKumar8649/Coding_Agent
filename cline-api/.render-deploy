@@ -1,0 +1,13 @@
+# Deployment marker for Render
+# Fixed: generateCode method missing in OpenRouterService
+# Version: 1.0.1
+# Timestamp: 2025-09-27T01:52:00Z
+
+# Changes applied:
+# - Added generateCode() method to OpenRouterService
+# - Added editCode() method to OpenRouterService  
+# - Both methods delegate to existing generateResponse()
+# - Fixes TypeError: this.provider.generateCode is not a function
+
+# Deploy command: npm start
+# Build command: npm install
