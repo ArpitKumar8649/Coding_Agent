@@ -8,6 +8,9 @@ const WorkspaceManager = require('../workspace/WorkspaceManager');
 const AgentFileManager = require('../workspace/AgentFileManager');
 // Removed cache and context services - using simplified approach
 const StreamingService = require('./streamingService');
+const SystemPromptEngine = require('../advanced/SystemPromptEngine');
+const StreamingEngine = require('../advanced/StreamingEngine');
+const LLMService = require('./llmService');
 
 class AgentService {
     constructor(options = {}) {
