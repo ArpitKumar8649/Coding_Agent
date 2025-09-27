@@ -971,11 +971,14 @@ Generate high-quality, production-ready code for ${fileSpec.path} that integrate
     }
 
     getModelForQuality(qualityLevel) {
+        // Use the configured default model from environment
+        const defaultModel = process.env.DEFAULT_MODEL || 'x-ai/grok-4-fast:free';
+        
         switch (qualityLevel) {
-            case 'poor': return 'gpt-3.5-turbo';
-            case 'medium': return 'gpt-4';
-            case 'advanced': return 'claude-3-5-sonnet-20241022';
-            default: return 'gpt-4';
+            case 'poor': return 'meta-llama/llama-3.2-3b-instruct:free';
+            case 'medium': return 'x-ai/grok-4-fast:free';
+            case 'advanced': return defaultModel;
+            default: return defaultModel;
         }
     }
 
