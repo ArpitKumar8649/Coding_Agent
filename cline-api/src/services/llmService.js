@@ -71,6 +71,26 @@ class LLMService {
         }
     }
 
+    async generateCode(prompt, options = {}) {
+        try {
+            console.log('💻 Generating code with LLM...');
+            
+            const startTime = Date.now();
+            const response = await this.generateResponse(prompt, options);
+            const processingTime = Date.now() - startTime;
+            
+            return {
+                content: response.content || response.message || '',
+                tokensUsed: response.usage?.total_tokens || 0,
+                model: response.model || options.model || 'unknown',
+                processingTime
+            };
+        } catch (error) {
+            console.error('❌ Code generation failed:', error.message);
+            throw error;
+        }
+    }
+
     async listAvailableModels() {
         return await this.currentProvider.listAvailableModels();
     }
