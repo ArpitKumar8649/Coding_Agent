@@ -144,23 +144,7 @@ class DirectWebSocketService {
     }
   }
 
-  send(type, data = {}) {
-    const message = {
-      type,
-      timestamp: Date.now(),
-      ...data
-    };
-
-    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-      this.ws.send(JSON.stringify(message));
-      return true;
-    } else {
-      // Queue message for when connection is established
-      this.messageQueue.push(message);
-      console.warn('WebSocket not connected, message queued');
-      return false;
-    }
-  }
+  // This method was moved below with HTTP fallback functionality
 
   processMessageQueue() {
     while (this.messageQueue.length > 0) {
