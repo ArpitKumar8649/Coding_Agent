@@ -357,9 +357,13 @@ body {
   @apply bg-gray-600;
 }
 
-/* Code block enhancements */
+/* Enhanced Code block */
 .code-block {
   position: relative;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
 }
 
 .code-block pre {
@@ -367,6 +371,24 @@ body {
   padding: 1rem !important;
   background: transparent !important;
   border-radius: 0 !important;
+}
+
+/* Enhanced Focus States */
+.focus-glow:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3), 0 0 20px rgba(59, 130, 246, 0.2);
+}
+
+/* Modern Checkbox and Radio */
+input[type="checkbox"]:checked,
+input[type="radio"]:checked {
+  background: linear-gradient(45deg, #3b82f6, #8b5cf6);
+  border-color: transparent;
+}
+
+/* Backdrop Effects */
+.backdrop-glow {
+  backdrop-filter: blur(20px) brightness(1.1) saturate(1.2);
 }
 
 .code-block .token.comment,
