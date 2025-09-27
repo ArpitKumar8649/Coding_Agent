@@ -60,6 +60,10 @@ const EnhancedAssistantMessage = ({
   };
 
   const renderContentWithCodeBlocks = (text) => {
+    if (!text || typeof text !== 'string') {
+      return [<div key="empty" className="text-gray-400">No content</div>];
+    }
+    
     const parts = text.split(/\[CODE_BLOCK_(\d+)\]/);
     const result = [];
     
