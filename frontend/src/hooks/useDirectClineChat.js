@@ -23,6 +23,10 @@ const useDirectClineChat = () => {
   useEffect(() => {
     wsService.current = new DirectWebSocketService();
     apiService.current = new DirectClineAPIService();
+    streamingService.current = new StreamingResponseService();
+
+    // Make API service globally available for WebSocket fallback
+    window.__clineAPIService = apiService.current;
 
     // Setup WebSocket event listeners
     const setupWebSocketListeners = () => {
