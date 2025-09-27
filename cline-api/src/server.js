@@ -10,7 +10,8 @@ const { authenticate } = require('./middleware/auth');
 const { rateLimiter } = require('./middleware/rateLimit');
 
 // Services
-const StreamingService = require('./services/streamingService');
+const OptimizedStreamingService = require('./services/OptimizedStreamingService');
+const AdvancedClineAPI = require('./advanced/AdvancedClineAPI');
 
 const app = express();
 const server = http.createServer(app);
@@ -39,28 +40,75 @@ app.get('/health', (req, res) => {
     status: 'ok', 
     timestamp: new Date().toISOString(),
     version: process.env.npm_package_version || '1.0.0',
-    uptime: process.uptime()
+    uptime: process.uptime(),
+    features: {
+      optimizedStreaming: true,
+      fileTransfer: true,
+      collaboration: true,
+      advancedAgent: true
+    }
   });
 });
 
 // Initialize services
-console.log('🚀 Initializing services...');
-const streamingService = new StreamingService(server);
+console.log('🚀 Initializing optimized services...');
+const streamingService = new OptimizedStreamingService(server);
 
-// Handle streaming requests for agent operations
-streamingService.on('stream_request', async ({ streamId, connectionId, type, request, callback }) => {
+// Initialize Advanced Cline API
+const advancedAPI = new AdvancedClineAPI({
+  workspaceDir: process.env.WORKSPACE_DIR || '/tmp/cline-workspace',
+  llmProvider: process.env.LLM_PROVIDER || 'openai',
+  qualityLevel: process.env.QUALITY_LEVEL || 'advanced',
+  enableGit: process.env.ENABLE_GIT !== 'false',
+  enableValidation: process.env.ENABLE_VALIDATION !== 'false',
+  enableStreaming: process.env.ENABLE_STREAMING !== 'false'
+});
+
+// Handle optimized streaming requests
+streamingService.on('optimized_stream_request', async ({ streamId, connectionId, type, request, options, callback }) => {
   try {
-    console.log(`📡 Processing stream request: ${type} (${streamId})`);
+    console.log(`🚀 Processing optimized stream request: ${type} (${streamId})`);
     
-    // For now, streaming is handled directly by agent operations
-    // Future: Add agent streaming support here
-    
-    streamingService.completeStream(streamId, { 
-      message: 'Agent operations handle streaming internally' 
-    });
+    if (type === 'chat_message') {
+      // Create or get session
+      let sessionId = request.sessionId;
+      if (!sessionId) {
+        const session = await advancedAPI.createSession({
+          startMode: request.mode || 'ACT',
+          qualityLevel: options.quality || 'advanced'
+        });
+        sessionId = session.sessionId;
+      }
+      
+      // Process message with streaming
+      const response = await advancedAPI.processMessage(sessionId, request.message, {
+        streaming: true,
+        realTimeValidation: options.realTimeValidation,
+        onChunk: (chunk) => {
+          callback({
+            type: 'content_chunk',
+            content: chunk.content,
+            quality: chunk.quality || 7,
+            errors: chunk.errors || [],
+            timestamp: Date.now()
+          });
+        },
+        onComplete: (result) => {
+          streamingService.completeStream(streamId, result);
+        }
+      });
+      
+    } else {
+      // Handle other stream types
+      streamingService.completeStream(streamId, { 
+        message: `Processed ${type} stream request`,
+        type,
+        request
+      });
+    }
     
   } catch (error) {
-    console.error(`Stream processing error (${streamId}):`, error);
+    console.error(`Optimized stream processing error (${streamId}):`, error);
     streamingService.errorStream(streamId, error);
   }
 });
