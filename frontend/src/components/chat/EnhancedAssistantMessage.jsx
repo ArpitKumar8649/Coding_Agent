@@ -21,6 +21,12 @@ const EnhancedAssistantMessage = ({
   }, [content]);
 
   const parseContentWithCodeBlocks = (text) => {
+    if (!text || typeof text !== 'string') {
+      setDisplayContent('');
+      setCodeBlocks([]);
+      return;
+    }
+    
     // Parse code blocks from markdown-style content
     const codeBlockRegex = /```(\w+)?\n([\s\S]*?)\n```/g;
     const blocks = [];
