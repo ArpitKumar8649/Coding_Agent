@@ -79,7 +79,7 @@ function App() {
     <div className="App h-screen w-screen bg-gray-900 overflow-hidden">
       {/* Main Chat Interface */}
       <div className="h-full w-full flex flex-col">
-        <EnhancedChatInterface
+        <AdvancedChatInterface
           messages={messages}
           onSendMessage={handleSendMessage}
           isConnected={isConnected}
@@ -92,6 +92,11 @@ function App() {
           onReconnect={reconnect}
           onClearMessages={handleClearMessages}
           onCancelProject={handleCancelProject}
+          onUploadFile={handleUploadFile}
+          onJoinCollaboration={handleJoinCollaboration}
+          streamingFeatures={streamingFeatures}
+          stats={stats}
+          performanceStats={getPerformanceStats()}
         />
       </div>
 
