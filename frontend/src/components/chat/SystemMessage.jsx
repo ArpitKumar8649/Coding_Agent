@@ -7,7 +7,7 @@ import {
   Settings,
   GitBranch
 } from 'lucide-react';
-import { formatTime } from '../../utils/timeUtils';
+import { formatTimestamp } from '../../utils/timeUtils';
 
 const SystemMessage = ({ 
   content, 
