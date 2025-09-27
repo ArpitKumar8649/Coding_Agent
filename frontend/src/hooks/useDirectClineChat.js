@@ -313,24 +313,82 @@ const useDirectClineChat = () => {
       mode: currentMode
     });
 
+    // Start streaming response
+    setIsStreaming(true);
+    setAgentStatus('thinking');
+
+    const streamId = `stream_${Date.now()}`;
+    
     try {
+      let result;
+      
       if (currentProject && currentProject.status === 'active') {
         // Continue existing project
-        const result = await apiService.current.continueProject(currentProject.id, content);
+        result = await apiService.current.continueProject(currentProject.id, content);
         console.log('Project continued:', result);
       } else {
         // Create new project
-        const result = await apiService.current.createProject(content, {
+        result = await apiService.current.createProject(content, {
           mode: currentMode,
           framework: 'React',
           styling: 'Tailwind CSS'
         });
         console.log('Project created:', result);
       }
+
+      if (result && result.success) {
+        // Handle streaming response
+        const responseContent = result.content || result.response?.content || 'Task completed successfully.';
+        
+        // Simulate streaming if no WebSocket connection
+        if (wsService.current.httpFallbackMode) {
+          await streamingService.current.simulateStreaming(
+            responseContent,
+            streamId,
+            {
+              chunkSize: 2,
+              delay: 30,
+              onChunk: (chunk, fullContent) => {
+                handleStreamContent(chunk, false);
+              },
+              onComplete: (finalContent) => {
+                handleStreamContent('', true);
+                setIsStreaming(false);
+                setAgentStatus('idle');
+              }
+            }
+          );
+        } else {
+          // Add complete response if WebSocket is working
+          addMessage({
+            type: 'assistant',
+            content: responseContent,
+            timestamp: Date.now(),
+            mode: currentMode,
+            toolUsed: result.toolUsed,
+            executionResult: result.executionResult
+          });
+          setIsStreaming(false);
+          setAgentStatus('idle');
+        }
+
+        // Update project info if new project was created
+        if (result.projectId && !currentProject) {
+          setCurrentProject({
+            id: result.projectId,
+            description: content,
+            status: 'active',
+            createdAt: Date.now()
+          });
+        }
+      }
       
       return true;
     } catch (error) {
       console.error('Failed to send message:', error);
+      
+      setIsStreaming(false);
+      setAgentStatus('idle');
       
       // Add detailed error message to chat
       addMessage({
