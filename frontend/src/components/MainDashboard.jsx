@@ -9,6 +9,7 @@ import ProjectDashboard from './ProjectDashboard';
 import AdvancedGenerationPanel from './AdvancedGenerationPanel';
 import SessionManager from './SessionManager';
 import SystemMonitor from './SystemMonitor';
+import CodeWorkspace from './CodeWorkspace';
 import ComprehensiveAPIService from '../services/ComprehensiveAPIService';
 import {
   HomeIcon,
