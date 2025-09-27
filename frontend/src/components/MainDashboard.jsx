@@ -142,6 +142,23 @@ const MainDashboard = () => {
 
             {/* Feature Highlights */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <GlassMorphismCard glowColor="indigo" className="p-6">
+                <h3 className="text-xl font-semibold text-white mb-4 flex items-center">
+                  <CodeBracketIcon className="w-6 h-6 mr-2 text-indigo-400" />
+                  Advanced Code Workspace
+                </h3>
+                <p className="text-gray-400 mb-4">
+                  Full-featured Monaco Editor with IntelliSense, multi-file management, 
+                  diff viewing, real-time collaboration, and AI-powered code generation.
+                </p>
+                <button 
+                  onClick={() => setActiveTab('workspace')}
+                  className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                >
+                  Open Workspace
+                </button>
+              </GlassMorphismCard>
+              
               <GlassMorphismCard glowColor="blue" className="p-6">
                 <h3 className="text-xl font-semibold text-white mb-4 flex items-center">
                   <RocketLaunchIcon className="w-6 h-6 mr-2 text-blue-400" />
