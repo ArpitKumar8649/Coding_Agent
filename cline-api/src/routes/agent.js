@@ -232,6 +232,186 @@ router.post('/validate-request', async (req, res, next) => {
 });
 
 /**
+ * POST /api/agent/advanced-generate
+ * Advanced code generation with enhanced system prompts
+ */
+router.post('/advanced-generate', async (req, res, next) => {
+    try {
+        const {
+            description,
+            projectType = 'web-application',
+            framework = 'react',
+            features = [],
+            qualityLevel = 'advanced',
+            streaming = false,
+            fileSpecs = [],
+            contextAware = true
+        } = req.body;
+
+        if (!description) {
+            return res.status(400).json({
+                success: false,
+                error: 'Description is required for advanced generation'
+            });
+        }
+
+        console.log(`🧠 Advanced Generate: "${description.substring(0, 50)}..." (${qualityLevel})`);
+
+        // Use enhanced system prompt
+        const result = await req.agentService.advancedGenerate({
+            description,
+            projectType,
+            framework,
+            features,
+            qualityLevel,
+            streaming,
+            fileSpecs,
+            contextAware,
+            userId: req.headers['x-user-id'] || 'anonymous'
+        });
+
+        res.json(result);
+
+    } catch (error) {
+        console.error('Advanced generation error:', error);
+        next(error);
+    }
+});
+
+/**
+ * POST /api/agent/stream-generate
+ * Real-time streaming generation with live updates
+ */
+router.post('/stream-generate', async (req, res, next) => {
+    try {
+        const {
+            description,
+            fileSpecs = [],
+            qualityLevel = 'advanced',
+            realTimeValidation = true,
+            autoCorrection = true
+        } = req.body;
+
+        if (!description) {
+            return res.status(400).json({
+                success: false,
+                error: 'Description is required for streaming generation'
+            });
+        }
+
+        console.log(`🌊 Stream Generate: "${description.substring(0, 50)}..."`);
+
+        // Set up streaming headers
+        res.setHeader('Content-Type', 'text/plain');
+        res.setHeader('Cache-Control', 'no-cache');
+        res.setHeader('Connection', 'keep-alive');
+
+        const streamId = await req.agentService.createStreamingGeneration({
+            description,
+            fileSpecs,
+            qualityLevel,
+            realTimeValidation,
+            autoCorrection,
+            onChunk: (chunk) => {
+                res.write(`data: ${JSON.stringify(chunk)}\n\n`);
+            },
+            onComplete: (result) => {
+                res.write(`data: ${JSON.stringify({ type: 'complete', result })}\n\n`);
+                res.end();
+            },
+            onError: (error) => {
+                res.write(`data: ${JSON.stringify({ type: 'error', error: error.message })}\n\n`);
+                res.end();
+            }
+        });
+
+        res.write(`data: ${JSON.stringify({ type: 'started', streamId })}\n\n`);
+
+    } catch (error) {
+        console.error('Streaming generation error:', error);
+        res.write(`data: ${JSON.stringify({ type: 'error', error: error.message })}\n\n`);
+        res.end();
+    }
+});
+
+/**
+ * POST /api/agent/bulk-file-generate
+ * Generate multiple files with advanced prompts and dependencies
+ */
+router.post('/bulk-file-generate', async (req, res, next) => {
+    try {
+        const {
+            files = [],
+            projectContext = {},
+            generateDependencies = true,
+            qualityLevel = 'advanced',
+            streaming = false
+        } = req.body;
+
+        if (!Array.isArray(files) || files.length === 0) {
+            return res.status(400).json({
+                success: false,
+                error: 'Files array is required and must not be empty'
+            });
+        }
+
+        console.log(`📁 Bulk File Generate: ${files.length} files (${qualityLevel})`);
+
+        const result = await req.agentService.bulkFileGenerate({
+            files,
+            projectContext,
+            generateDependencies,
+            qualityLevel,
+            streaming,
+            userId: req.headers['x-user-id'] || 'anonymous'
+        });
+
+        res.json(result);
+
+    } catch (error) {
+        console.error('Bulk file generation error:', error);
+        next(error);
+    }
+});
+
+/**
+ * POST /api/agent/enhance-prompt
+ * Enhance system prompt for specific use case
+ */
+router.post('/enhance-prompt', async (req, res, next) => {
+    try {
+        const {
+            basePrompt = '',
+            context = {},
+            qualityLevel = 'advanced',
+            projectType = 'web-application',
+            features = []
+        } = req.body;
+
+        console.log(`✨ Enhance Prompt: ${projectType} (${qualityLevel})`);
+
+        const result = await req.agentService.enhanceSystemPrompt({
+            basePrompt,
+            context,
+            qualityLevel,
+            projectType,
+            features
+        });
+
+        res.json({
+            success: true,
+            enhancedPrompt: result.prompt,
+            enhancement: result.enhancement,
+            metadata: result.metadata
+        });
+
+    } catch (error) {
+        console.error('Prompt enhancement error:', error);
+        next(error);
+    }
+});
+
+/**
  * GET /api/agent/health
  * Agent service health check
  */
