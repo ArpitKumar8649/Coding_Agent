@@ -197,6 +197,17 @@ class OpenRouterService {
             throw new Error(`Context generation failed: ${error.response?.data?.error || error.message}`);
         }
     }
+
+    // Add missing methods needed by AgentAIHandler
+    async generateCode(prompt, options = {}) {
+        console.log('🔧 generateCode called - delegating to generateResponse');
+        return await this.generateResponse(prompt, options);
+    }
+
+    async editCode(prompt, options = {}) {
+        console.log('🔧 editCode called - delegating to generateResponse'); 
+        return await this.generateResponse(prompt, options);
+    }
 }
 
 module.exports = OpenRouterService;
