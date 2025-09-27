@@ -5,7 +5,7 @@
 
 class DirectClineAPIService {
   constructor(baseURL = null, apiKey = null) {
-    this.baseURL = baseURL || process.env.REACT_APP_CLINE_API_URL || 'http://localhost:3000';
+    this.baseURL = baseURL || process.env.REACT_APP_CLINE_API_URL || 'https://cline-api-zegw.onrender.com';
     this.apiKey = apiKey || process.env.REACT_APP_CLINE_API_KEY || 'development-key';
   }
 
