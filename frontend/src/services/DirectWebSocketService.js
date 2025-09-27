@@ -60,24 +60,22 @@ class DirectWebSocketService {
         };
 
         this.ws.onclose = (event) => {
+          clearTimeout(connectionTimeout);
           console.log(`❌ WebSocket connection closed: ${event.code} - ${event.reason || 'No reason'}`);
           this.isConnected = false;
-          this.emit('disconnected', { 
-            code: event.code, 
-            reason: event.reason,
-            wasClean: event.wasClean,
-            url: wsUrl
-          });
           
-          // Auto-reconnect if not a manual close
-          if (event.code !== 1000 && this.reconnectAttempts < this.maxReconnectAttempts) {
-            console.log(`🔄 Scheduling reconnect attempt ${this.reconnectAttempts + 1}/${this.maxReconnectAttempts}`);
-            setTimeout(() => {
-              this.reconnect();
-            }, this.reconnectDelay * Math.pow(2, this.reconnectAttempts));
-          } else if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-            console.error('❌ Max reconnection attempts reached');
-            this.emit('error', new Error(`Failed to connect to WebSocket after ${this.maxReconnectAttempts} attempts. URL: ${wsUrl}`));
+          // Enable HTTP fallback mode immediately
+          if (!this.httpFallbackMode) {
+            console.log('🔄 Enabling HTTP fallback mode');
+            this.httpFallbackMode = true;
+            this.emit('connected'); // Emit connected for HTTP fallback
+          } else {
+            this.emit('disconnected', { 
+              code: event.code, 
+              reason: event.reason,
+              wasClean: event.wasClean,
+              url: wsUrl
+            });
           }
         };
 
