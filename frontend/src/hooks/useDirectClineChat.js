@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import DirectWebSocketService from '../services/DirectWebSocketService';
 import DirectClineAPIService from '../services/DirectClineAPIService';
+import StreamingResponseService from '../services/StreamingResponseService';
 
 const useDirectClineChat = () => {
   const [messages, setMessages] = useState([]);
