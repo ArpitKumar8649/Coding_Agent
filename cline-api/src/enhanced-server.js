@@ -8,7 +8,7 @@ require('dotenv').config({ path: '.env.advanced' });
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const AdvancedClineAPI = require('./advanced/AdvancedClineAPI');
+const MockAdvancedClineAPI = require('./advanced/MockAdvancedClineAPI');
 const { authenticateAPIKey, applyRateLimit, validateRequest } = require('./middleware/advancedAuth');
 const mongoService = require('./services/mongoService');
 
