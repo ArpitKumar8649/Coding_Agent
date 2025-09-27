@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cline API Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #1a1a1a; color: white; }
+        .container { max-width: 800px; margin: 0 auto; }
+        button { padding: 10px 20px; margin: 10px 0; cursor: pointer; }
+        .result { background: #333; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .error { background: #ff4444; color: white; }
+        .success { background: #44ff44; color: black; }
+        pre { white-space: pre-wrap; word-wrap: break-word; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 Cline API Real Error Test</h1>
+        
+        <button onclick="testHealth()">Test Health</button>
+        <button onclick="testAgentHealth()">Test Agent Health</button>
+        <button onclick="testCreateProject()">Test Create Project (REAL ERROR)</button>
+        
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const API_URL = 'https://cline-api-zegw.onrender.com';
+        const API_KEY = '38a4fe1bddaa7d54a6e97b1da38343807a113da35601df4a3cfae3392f8aeed8';
+        
+        function addResult(title, data, isError = false) {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `result ${isError ? 'error' : 'success'}`;
+            div.innerHTML = `
+                <h3>${title}</h3>
+                <pre>${JSON.stringify(data, null, 2)}</pre>
+            `;
+            results.appendChild(div);
+        }
+        
+        async function testHealth() {
+            try {
+                const response = await fetch(`${API_URL}/health`);
+                const data = await response.json();
+                addResult('✅ Health Check', data);
+            } catch (error) {
+                addResult('❌ Health Check Error', { error: error.message }, true);
+            }
+        }
+        
+        async function testAgentHealth() {
+            try {
+                const response = await fetch(`${API_URL}/api/agent/health`, {
+                    headers: { 'Authorization': `Bearer ${API_KEY}` }
+                });
+                const data = await response.json();
+                addResult('✅ Agent Health', data);
+            } catch (error) {
+                addResult('❌ Agent Health Error', { error: error.message }, true);
+            }
+        }
+        
+        async function testCreateProject() {
+            try {
+                const response = await fetch(`${API_URL}/api/agent/create-project`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${API_KEY}`
+                    },
+                    body: JSON.stringify({
+                        description: 'Create a simple React button component',
+                        preferences: { framework: 'React' },
+                        streaming: false,
+                        userId: 'test'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    addResult('✅ Project Created', data);
+                } else {
+                    addResult('❌ Create Project Error', {
+                        status: response.status,
+                        statusText: response.statusText,
+                        error: data
+                    }, true);
+                }
+            } catch (error) {
+                addResult('❌ Create Project Network Error', { error: error.message }, true);
+            }
+        }
+    </script>
+</body>
+</html>
