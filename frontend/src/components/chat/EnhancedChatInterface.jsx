@@ -241,6 +241,14 @@ const EnhancedChatInterface = ({
         </div>
       </>
 
+      {/* Live Progress Indicator */}
+      <LiveProgressIndicator
+        isVisible={isStreaming || agentStatus !== 'idle'}
+        status={agentStatus}
+        currentAction={isStreaming ? 'Processing your request...' : ''}
+        onCancel={handleCancelGeneration}
+      />
+
       {/* Mode & Status Bar - Always visible */}
       <div className="flex-shrink-0 px-3 sm:px-4 py-2 bg-gray-800 border-t border-gray-700 w-full">
         <div className="flex items-center justify-between text-xs">
