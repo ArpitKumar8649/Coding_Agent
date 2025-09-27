@@ -102,8 +102,19 @@ class OpenRouterService {
             return this.createStreamIterator(response.data);
             
         } catch (error) {
-            console.error('❌ OpenRouter streaming error:', error.response?.data || error.message);
-            throw new Error(`OpenRouter streaming failed: ${error.response?.data?.error || error.message}`);
+            console.error('❌ OpenRouter streaming error:', {
+                status: error.response?.status,
+                statusText: error.response?.statusText,
+                data: error.response?.data,
+                message: error.message
+            });
+            
+            const errorMessage = error.response?.data?.error?.message || 
+                                error.response?.data?.message || 
+                                error.response?.statusText || 
+                                error.message;
+            
+            throw new Error(`OpenRouter streaming failed: ${errorMessage}`);
         }
     }
 
