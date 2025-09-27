@@ -21,15 +21,26 @@ class DirectClineAPIService {
     };
 
     try {
+      console.log(`🔵 API Request: ${options.method || 'GET'} ${url}`);
       const response = await fetch(url, config);
       
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        let errorDetails;
+        try {
+          errorDetails = await response.json();
+        } catch {
+          errorDetails = { error: `HTTP ${response.status}: ${response.statusText}` };
+        }
+        
+        console.error(`❌ API Error Response:`, errorDetails);
+        throw new Error(`API Error: ${JSON.stringify(errorDetails)}`);
       }
       
-      return await response.json();
+      const result = await response.json();
+      console.log(`✅ API Success:`, result);
+      return result;
     } catch (error) {
-      console.error(`API request failed for ${endpoint}:`, error);
+      console.error(`❌ API request failed for ${endpoint}:`, error);
       throw error;
     }
   }
