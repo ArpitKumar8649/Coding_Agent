@@ -15,6 +15,7 @@ import {
 import EnhancedMessageList from './EnhancedMessageList';
 import EnhancedMessageInput from './EnhancedMessageInput';
 import EnhancedModeSwitch from './EnhancedModeSwitch';
+import LiveProgressIndicator from './LiveProgressIndicator';
 
 const EnhancedChatInterface = ({ 
   messages = [], 
