@@ -229,10 +229,65 @@ class DirectWebSocketService {
     }
   }
 
+  // HTTP fallback for when WebSocket is not available
+  async sendHTTPFallback(type, data) {
+    const apiService = window.__clineAPIService;
+    if (!apiService) {
+      console.error('No API service available for HTTP fallback');
+      return false;
+    }
+
+    try {
+      switch (type) {
+        case 'create_project':
+          const createResult = await apiService.createProject(data.description, data.preferences);
+          this.emit('project_created', createResult);
+          return true;
+
+        case 'continue_project':
+          const continueResult = await apiService.continueProject(data.projectId, data.instruction);
+          this.emit('project_progress', continueResult);
+          return true;
+
+        default:
+          console.warn(`HTTP fallback not implemented for type: ${type}`);
+          return false;
+      }
+    } catch (error) {
+      console.error('HTTP fallback error:', error);
+      this.emit('error', error);
+      return false;
+    }
+  }
+
+  // Enhanced send method with HTTP fallback
+  send(type, data = {}) {
+    const message = {
+      type,
+      timestamp: Date.now(),
+      ...data
+    };
+
+    if (this.httpFallbackMode) {
+      return this.sendHTTPFallback(type, data);
+    }
+
+    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+      this.ws.send(JSON.stringify(message));
+      return true;
+    } else {
+      // Queue message for when connection is established
+      this.messageQueue.push(message);
+      console.warn('WebSocket not connected, message queued');
+      return false;
+    }
+  }
+
   // Get connection status
   getStatus() {
     return {
-      isConnected: this.isConnected,
+      isConnected: this.isConnected || this.httpFallbackMode,
+      httpFallbackMode: this.httpFallbackMode,
       projectId: this.projectId,
       reconnectAttempts: this.reconnectAttempts,
       readyState: this.ws ? this.ws.readyState : WebSocket.CLOSED,
