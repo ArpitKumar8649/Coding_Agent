@@ -113,33 +113,30 @@ const useDirectClineChat = () => {
   }, []);
 
   const handleConnectionError = useCallback((error) => {
-    console.error('❌ WebSocket connection error:', error);
-    const errorMessage = error?.message || error?.error?.message || 'WebSocket connection failed';
-    setConnectionError(`WebSocket Error: ${errorMessage}`);
+    console.error('❌ Connection error:', error);
+    const errorMessage = error?.message || error?.error?.message || 'Connection failed';
+    
+    // Don't set connection error if HTTP fallback is working
+    const status = wsService.current?.getStatus();
+    if (status?.httpFallbackMode) {
+      console.log('🔄 Using HTTP fallback mode');
+      setIsConnected(true);
+      setConnectionError(null);
+      return;
+    }
+    
+    setConnectionError(`Connection Error: ${errorMessage}`);
     setIsConnected(false);
     setIsStreaming(false);
     
-    // Add detailed error to chat
+    // Add error to chat only if no fallback available
     addMessage({
       type: 'system',
-      content: `❌ **WebSocket Connection Failed**\n\n${errorMessage}\n\n**Falling back to HTTP-only mode**\n\n**WebSocket URL:** ${error?.url || 'Unknown'}\n\n**Time:** ${new Date().toLocaleTimeString()}`,
+      content: `❌ **Connection Failed**\n\n${errorMessage}\n\n**Time:** ${new Date().toLocaleTimeString()}`,
       variant: 'error',
       timestamp: Date.now(),
       isError: true
     });
-    
-    // Set connected to true for HTTP-only mode
-    setTimeout(() => {
-      console.log('🔄 Enabling HTTP-only mode (no WebSocket)');
-      setIsConnected(true);
-      setConnectionError(null);
-      addMessage({
-        type: 'system',
-        content: `✅ **HTTP-only Mode Enabled**\n\nWebSocket unavailable, but HTTP API is working.\nYou can still create projects, but real-time updates may be limited.`,
-        variant: 'warning',
-        timestamp: Date.now()
-      });
-    }, 2000);
   }, []);
 
   const handleProjectCreated = useCallback((data) => {
