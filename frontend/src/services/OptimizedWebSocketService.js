@@ -37,7 +37,7 @@ class OptimizedWebSocketService {
   }
 
   async connect(url = null) {
-    const wsUrl = url || process.env.REACT_APP_CLINE_WS_URL || 'ws://localhost:3000/ws';
+    const wsUrl = url || process.env.REACT_APP_CLINE_WS_URL || 'wss://cline-api-zegw.onrender.com/ws';
     console.log(`🚀 Attempting optimized WebSocket connection to: ${wsUrl}`);
     
     return new Promise((resolve, reject) => {
