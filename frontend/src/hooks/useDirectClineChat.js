@@ -94,8 +94,15 @@ const useDirectClineChat = () => {
   const handleConnected = useCallback(() => {
     setIsConnected(true);
     setConnectionError(null);
-    console.log('✅ Connected to Cline API WebSocket');
-    addSystemMessage('Connected to Cline Agent', 'success');
+    
+    const status = wsService.current.getStatus();
+    if (status.httpFallbackMode) {
+      console.log('✅ Connected to Cline API (HTTP Mode)');
+      addSystemMessage('Connected to Cline Agent (HTTP Mode)', 'warning');
+    } else {
+      console.log('✅ Connected to Cline API WebSocket');
+      addSystemMessage('Connected to Cline Agent (WebSocket)', 'success');
+    }
   }, []);
 
   const handleDisconnected = useCallback(() => {
